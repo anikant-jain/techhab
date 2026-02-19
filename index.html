@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI Gesture Controlled 3D Particle System</title>
+
+<!-- Three.js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+
+<!-- MediaPipe Hands -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
+<style>
+body { margin:0; overflow:hidden; background:black; }
+#info {
+  position:absolute;
+  top:10px;
+  left:10px;
+  color:white;
+  font-family:Arial;
+  z-index:10;
+}
+</style>
+</head>
+
+<body>
+<div id="info">
+Gesture Controls:<br>
+✋ Open Palm → Attract<br>
+✊ Fist → Explosion<br>
+☝ 1 Finger → Heart<br>
+✌ 2 Fingers → Flower<br>
+🤟 3 Fingers → Sphere<br>
+4 Fingers → Cube<br>
+Move hand → Change Color
+</div>
+
+<video id="video" style="display:none;"></video>
+
+<script>
+
+// =====================
+// THREE.JS SETUP
+// =====================
+
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+let renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+camera.position.z = 5;
+
+let particleCount = 3000;
+let geometry = new THREE.BufferGeometry();
+let positions = new Float32Array(particleCount * 3);
+let targetPositions = new Float32Array(particleCount * 3);
+
+let material = new THREE.PointsMaterial({
+  color:0xff0080,
+  size:0.05
+});
+
+let particles = new THREE.Points(geometry, material);
+scene.add(particles);
+
+// =====================
+// SHAPE FUNCTIONS
+// =====================
+
+function createSphere(){
+  for(let i=0;i<particleCount;i++){
+    let theta = Math.random()*2*Math.PI;
+    let phi = Math.acos(2*Math.random()-1);
+    let r = 1.5;
+
+    targetPositions[i*3] = r*Math.sin(phi)*Math.cos(theta);
+    targetPositions[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
+    targetPositions[i*3+2] = r*Math.cos(phi);
+  }
+}
+
+function createCube(){
+  for(let i=0;i<particleCount;i++){
+    targetPositions[i*3] = (Math.random()-0.5)*3;
+    targetPositions[i*3+1] = (Math.random()-0.5)*3;
+    targetPositions[i*3+2] = (Math.random()-0.5)*3;
+  }
+}
+
+function createHeart(){
+  for(let i=0;i<particleCount;i++){
+    let t = Math.random()*Math.PI*2;
+
+    let x = 16*Math.pow(Math.sin(t),3);
+    let y = 13*Math.cos(t) - 5*Math.cos(2*t)
+            - 2*Math.cos(3*t) - Math.cos(4*t);
+
+    targetPositions[i*3] = x/10;
+    targetPositions[i*3+1] = y/10;
+    targetPositions[i*3+2] = (Math.random()-0.5);
+  }
+}
+
+function createFlower(){
+  for(let i=0;i<particleCount;i++){
+    let theta = Math.random()*Math.PI*2;
+    let k = 5;
+    let r = Math.sin(k*theta)*1.5;
+
+    targetPositions[i*3] = r*Math.cos(theta);
+    targetPositions[i*3+1] = r*Math.sin(theta);
+    targetPositions[i*3+2] = (Math.random()-0.5);
+  }
+}
+
+createSphere();
+
+// initialize positions
+for(let i=0;i<particleCount*3;i++){
+  positions[i] = (Math.random()-0.5)*5;
+}
+geometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
+
+// =====================
+// ANIMATION
+// =====================
+
+function animate(){
+  requestAnimationFrame(animate);
+
+  for(let i=0;i<particleCount*3;i++){
+    positions[i] += (targetPositions[i]-positions[i])*0.05;
+  }
+
+  geometry.attributes.position.needsUpdate = true;
+  particles.rotation.y += 0.002;
+
+  renderer.render(scene,camera);
+}
+animate();
+
+// =====================
+// GESTURE DETECTION
+// =====================
+
+const videoElement = document.getElementById('video');
+
+const hands = new Hands({
+  locateFile: file =>
+    `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+});
+
+hands.setOptions({
+  maxNumHands:1,
+  minDetectionConfidence:0.7,
+  minTrackingConfidence:0.5
+});
+
+hands.onResults(results => {
+
+  if(results.multiHandLandmarks.length>0){
+
+    let landmarks = results.multiHandLandmarks[0];
+
+    let indexTip = landmarks[8];
+    let hue = indexTip.x;
+    material.color.setHSL(hue,1,0.5);
+
+    let fingerCount = countFingers(landmarks);
+
+    switch(fingerCount){
+      case 0: explode(); break;
+      case 1: createHeart(); break;
+      case 2: createFlower(); break;
+      case 3: createSphere(); break;
+      case 4: createCube(); break;
+      case 5: attractToHand(indexTip); break;
+    }
+  }
+});
+
+// =====================
+// HELPERS
+// =====================
+
+function countFingers(landmarks){
+  let count = 0;
+
+  if(landmarks[8].y < landmarks[6].y) count++;
+  if(landmarks[12].y < landmarks[10].y) count++;
+  if(landmarks[16].y < landmarks[14].y) count++;
+  if(landmarks[20].y < landmarks[18].y) count++;
+  if(landmarks[4].x < landmarks[3].x) count++;
+
+  return count;
+}
+
+function explode(){
+  for(let i=0;i<particleCount*3;i++){
+    targetPositions[i] = (Math.random()-0.5)*6;
+  }
+}
+
+function attractToHand(point){
+  let x = (point.x-0.5)*6;
+  let y = -(point.y-0.5)*6;
+
+  for(let i=0;i<particleCount;i++){
+    targetPositions[i*3] += (x-targetPositions[i*3])*0.02;
+    targetPositions[i*3+1] += (y-targetPositions[i*3+1])*0.02;
+  }
+}
+
+// =====================
+// CAMERA START
+// =====================
+
+const cameraFeed = new Camera(videoElement,{
+  onFrame: async ()=>{
+    await hands.send({image:videoElement});
+  },
+  width:640,
+  height:480
+});
+cameraFeed.start();
+
+</script>
+</body>
+</html>
