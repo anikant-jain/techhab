@@ -2,230 +2,196 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>AI Gesture Controlled 3D Particle System</title>
-
-<!-- Three.js -->
+<title>Ultimate Keyboard Particle System</title>
 <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-
-<!-- MediaPipe Hands -->
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-
 <style>
 body { margin:0; overflow:hidden; background:black; }
 #info {
-  position:absolute;
-  top:10px;
-  left:10px;
-  color:white;
-  font-family:Arial;
-  z-index:10;
+position:absolute;
+top:10px;
+left:10px;
+color:white;
+font-family:Arial;
+font-size:13px;
 }
 </style>
 </head>
-
 <body>
+
 <div id="info">
-Gesture Controls:<br>
-✋ Open Palm → Attract<br>
-✊ Fist → Explosion<br>
-☝ 1 Finger → Heart<br>
-✌ 2 Fingers → Flower<br>
-🤟 3 Fingers → Sphere<br>
-4 Fingers → Cube<br>
-Move hand → Change Color
+ULTIMATE KEYBOARD PARTICLE SYSTEM<br>
+Press 1–9 for Shapes<br>
+Press Letters for Effects<br>
+Try M for Chaos Mode 🔥
 </div>
 
-<video id="video" style="display:none;"></video>
-
 <script>
-
-// =====================
-// THREE.JS SETUP
-// =====================
 
 let scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 let renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
+camera.position.z = 6;
 
-camera.position.z = 5;
-
-let particleCount = 3000;
+let particleCount = 4000;
 let geometry = new THREE.BufferGeometry();
 let positions = new Float32Array(particleCount * 3);
 let targetPositions = new Float32Array(particleCount * 3);
+let velocities = new Float32Array(particleCount * 3);
+
+let speed = 0.05;
+let rotationSpeed = 0.002;
+let gravity = false;
+let frozen = false;
+let rainbow = false;
+
+for(let i=0;i<particleCount*3;i++){
+positions[i] = (Math.random()-0.5)*6;
+velocities[i] = 0;
+}
+
+geometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
 
 let material = new THREE.PointsMaterial({
-  color:0xff0080,
-  size:0.05
+color:0xff0080,
+size:0.05
 });
 
 let particles = new THREE.Points(geometry, material);
 scene.add(particles);
 
-// =====================
-// SHAPE FUNCTIONS
-// =====================
+// SHAPES
 
-function createSphere(){
-  for(let i=0;i<particleCount;i++){
-    let theta = Math.random()*2*Math.PI;
-    let phi = Math.acos(2*Math.random()-1);
-    let r = 1.5;
-
-    targetPositions[i*3] = r*Math.sin(phi)*Math.cos(theta);
-    targetPositions[i*3+1] = r*Math.sin(phi)*Math.sin(theta);
-    targetPositions[i*3+2] = r*Math.cos(phi);
-  }
+function randomScatter(){
+for(let i=0;i<particleCount*3;i++)
+targetPositions[i]=(Math.random()-0.5)*6;
 }
 
-function createCube(){
-  for(let i=0;i<particleCount;i++){
-    targetPositions[i*3] = (Math.random()-0.5)*3;
-    targetPositions[i*3+1] = (Math.random()-0.5)*3;
-    targetPositions[i*3+2] = (Math.random()-0.5)*3;
-  }
+function sphere(){
+for(let i=0;i<particleCount;i++){
+let theta=Math.random()*2*Math.PI;
+let phi=Math.acos(2*Math.random()-1);
+let r=2;
+targetPositions[i*3]=r*Math.sin(phi)*Math.cos(theta);
+targetPositions[i*3+1]=r*Math.sin(phi)*Math.sin(theta);
+targetPositions[i*3+2]=r*Math.cos(phi);
+}
 }
 
-function createHeart(){
-  for(let i=0;i<particleCount;i++){
-    let t = Math.random()*Math.PI*2;
-
-    let x = 16*Math.pow(Math.sin(t),3);
-    let y = 13*Math.cos(t) - 5*Math.cos(2*t)
-            - 2*Math.cos(3*t) - Math.cos(4*t);
-
-    targetPositions[i*3] = x/10;
-    targetPositions[i*3+1] = y/10;
-    targetPositions[i*3+2] = (Math.random()-0.5);
-  }
+function heart(){
+for(let i=0;i<particleCount;i++){
+let t=Math.random()*Math.PI*2;
+let x=16*Math.pow(Math.sin(t),3);
+let y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);
+targetPositions[i*3]=x/8;
+targetPositions[i*3+1]=y/8;
+targetPositions[i*3+2]=(Math.random()-0.5);
+}
 }
 
-function createFlower(){
-  for(let i=0;i<particleCount;i++){
-    let theta = Math.random()*Math.PI*2;
-    let k = 5;
-    let r = Math.sin(k*theta)*1.5;
-
-    targetPositions[i*3] = r*Math.cos(theta);
-    targetPositions[i*3+1] = r*Math.sin(theta);
-    targetPositions[i*3+2] = (Math.random()-0.5);
-  }
+function cube(){
+for(let i=0;i<particleCount*3;i++)
+targetPositions[i]=(Math.random()-0.5)*3;
 }
 
-createSphere();
-
-// initialize positions
-for(let i=0;i<particleCount*3;i++){
-  positions[i] = (Math.random()-0.5)*5;
+function spiral(){
+for(let i=0;i<particleCount;i++){
+let t=i*0.1;
+targetPositions[i*3]=Math.cos(t)*t*0.05;
+targetPositions[i*3+1]=Math.sin(t)*t*0.05;
+targetPositions[i*3+2]=(Math.random()-0.5);
 }
-geometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
+}
 
-// =====================
+function galaxy(){
+for(let i=0;i<particleCount;i++){
+let angle=Math.random()*2*Math.PI;
+let radius=Math.random()*3;
+targetPositions[i*3]=Math.cos(angle)*radius;
+targetPositions[i*3+1]=Math.sin(angle)*radius;
+targetPositions[i*3+2]=(Math.random()-0.5)*0.5;
+}
+}
+
+function wave(){
+for(let i=0;i<particleCount;i++){
+let x=(Math.random()-0.5)*4;
+let z=(Math.random()-0.5)*4;
+let y=Math.sin(x*2)*0.5;
+targetPositions[i*3]=x;
+targetPositions[i*3+1]=y;
+targetPositions[i*3+2]=z;
+}
+}
+
+// KEYBOARD
+
+window.addEventListener("keydown",function(e){
+
+let k=e.key.toLowerCase();
+
+if(k=="1") heart();
+if(k=="2") spiral();
+if(k=="3") sphere();
+if(k=="4") cube();
+if(k=="5") galaxy();
+if(k=="6") wave();
+if(k=="7") randomScatter();
+if(k=="8") heart();
+if(k=="9") sphere();
+if(k=="0") randomScatter();
+
+if(k=="q") speed=0.01;
+if(k=="w") speed=0.05;
+if(k=="e") randomScatter();
+if(k=="r") randomScatter();
+if(k=="t") rotationSpeed=0.01;
+if(k=="y") rotationSpeed=0;
+if(k=="u") material.size+=0.01;
+if(k=="i") material.size-=0.01;
+if(k=="o") material.color.setHex(Math.random()*0xffffff);
+if(k=="p") rainbow=!rainbow;
+if(k=="a") for(let i=0;i<particleCount*3;i++) targetPositions[i]*=0.2;
+if(k=="s") for(let i=0;i<particleCount*3;i++) targetPositions[i]*=3;
+if(k=="d") gravity=true;
+if(k=="f") gravity=false;
+if(k=="g") material.size=0.1;
+if(k=="h") frozen=true;
+if(k=="j") frozen=false;
+if(k=="z") camera.position.z-=0.5;
+if(k=="x") camera.position.z+=0.5;
+if(k=="c") document.body.style.backgroundColor="#"+Math.floor(Math.random()*16777215).toString(16);
+if(k=="v") document.body.style.backgroundColor="black";
+if(k=="b") document.body.style.backgroundColor="white";
+if(k=="m"){ speed=0.2; rotationSpeed=0.05; randomScatter(); }
+
+});
+
 // ANIMATION
-// =====================
 
 function animate(){
-  requestAnimationFrame(animate);
+requestAnimationFrame(animate);
 
-  for(let i=0;i<particleCount*3;i++){
-    positions[i] += (targetPositions[i]-positions[i])*0.05;
-  }
+if(!frozen){
+for(let i=0;i<particleCount*3;i++){
+positions[i]+= (targetPositions[i]-positions[i])*speed;
+if(gravity) positions[i*3+1]-=0.001;
+}
+}
 
-  geometry.attributes.position.needsUpdate = true;
-  particles.rotation.y += 0.002;
+if(rainbow){
+material.color.setHSL(Date.now()*0.0005%1,1,0.5);
+}
 
-  renderer.render(scene,camera);
+geometry.attributes.position.needsUpdate=true;
+particles.rotation.y+=rotationSpeed;
+
+renderer.render(scene,camera);
 }
 animate();
-
-// =====================
-// GESTURE DETECTION
-// =====================
-
-const videoElement = document.getElementById('video');
-
-const hands = new Hands({
-  locateFile: file =>
-    `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-});
-
-hands.setOptions({
-  maxNumHands:1,
-  minDetectionConfidence:0.7,
-  minTrackingConfidence:0.5
-});
-
-hands.onResults(results => {
-
-  if(results.multiHandLandmarks.length>0){
-
-    let landmarks = results.multiHandLandmarks[0];
-
-    let indexTip = landmarks[8];
-    let hue = indexTip.x;
-    material.color.setHSL(hue,1,0.5);
-
-    let fingerCount = countFingers(landmarks);
-
-    switch(fingerCount){
-      case 0: explode(); break;
-      case 1: createHeart(); break;
-      case 2: createFlower(); break;
-      case 3: createSphere(); break;
-      case 4: createCube(); break;
-      case 5: attractToHand(indexTip); break;
-    }
-  }
-});
-
-// =====================
-// HELPERS
-// =====================
-
-function countFingers(landmarks){
-  let count = 0;
-
-  if(landmarks[8].y < landmarks[6].y) count++;
-  if(landmarks[12].y < landmarks[10].y) count++;
-  if(landmarks[16].y < landmarks[14].y) count++;
-  if(landmarks[20].y < landmarks[18].y) count++;
-  if(landmarks[4].x < landmarks[3].x) count++;
-
-  return count;
-}
-
-function explode(){
-  for(let i=0;i<particleCount*3;i++){
-    targetPositions[i] = (Math.random()-0.5)*6;
-  }
-}
-
-function attractToHand(point){
-  let x = (point.x-0.5)*6;
-  let y = -(point.y-0.5)*6;
-
-  for(let i=0;i<particleCount;i++){
-    targetPositions[i*3] += (x-targetPositions[i*3])*0.02;
-    targetPositions[i*3+1] += (y-targetPositions[i*3+1])*0.02;
-  }
-}
-
-// =====================
-// CAMERA START
-// =====================
-
-const cameraFeed = new Camera(videoElement,{
-  onFrame: async ()=>{
-    await hands.send({image:videoElement});
-  },
-  width:640,
-  height:480
-});
-cameraFeed.start();
 
 </script>
 </body>
 </html>
+
