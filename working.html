@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI 3D Particle System</title>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; background: black; }
+  </style>
+</head>
+<body>
+<video id="video" style="display:none;"></video>
+
+<script>
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+let renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+camera.position.z = 5;
+
+// Particle System
+let particleCount = 2000;
+let geometry = new THREE.BufferGeometry();
+let positions = new Float32Array(particleCount * 3);
+
+function createSphere() {
+  for(let i=0;i<particleCount;i++){
+    let theta = Math.random() * 2 * Math.PI;
+    let phi = Math.acos(2*Math.random()-1);
+    let r = 1.5;
+    positions[i*3] = r * Math.sin(phi)*Math.cos(theta);
+    positions[i*3+1] = r * Math.sin(phi)*Math.sin(theta);
+    positions[i*3+2] = r * Math.cos(phi);
+  }
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions,3));
+}
+createSphere();
+
+let material = new THREE.PointsMaterial({color:0xff0080, size:0.05});
+let particles = new THREE.Points(geometry, material);
+scene.add(particles);
+
+// Animate
+function animate(){
+  requestAnimationFrame(animate);
+  particles.rotation.y += 0.002;
+  renderer.render(scene,camera);
+}
+animate();
+
+// MediaPipe Setup
+const videoElement = document.getElementById('video');
+
+const hands = new Hands({
+  locateFile: (file) => {
+    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+  }
+});
+
+hands.setOptions({
+  maxNumHands: 1,
+  minDetectionConfidence: 0.7,
+  minTrackingConfidence: 0.5
+});
+
+hands.onResults(results => {
+  if(results.multiHandLandmarks.length > 0){
+    let x = results.multiHandLandmarks[0][8].x; // index finger tip
+    material.color.setHSL(x,1,0.5); // dynamic color
+  }
+});
+
+const cameraFeed = new Camera(videoElement, {
+  onFrame: async () => {
+    await hands.send({image: videoElement});
+  },
+  width: 640,
+  height: 480
+});
+cameraFeed.start();
+
+</script>
+</body>
+</html>
