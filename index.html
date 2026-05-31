@@ -6,703 +6,204 @@
     <title>JM Mobile - POS Invoice System</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: #f0f2f5;
-            color: #333;
-        }
 
-        /* ===== POS FORM PANEL ===== */
-        .pos-panel {
-            background: #1a1a2e;
-            min-height: 100vh;
-            padding: 20px;
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #333; }
+
+        /* ===== POS PANEL ===== */
+        .pos-panel { background: #1a1a2e; min-height: 100vh; padding: 20px; }
 
         .pos-header {
             background: linear-gradient(135deg, #c0392b, #922b21);
-            border-radius: 12px;
-            padding: 20px 30px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            border-radius: 12px; padding: 20px 30px; margin-bottom: 25px;
+            display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 4px 20px rgba(192,57,43,0.4);
         }
-
-        .pos-header h1 {
-            color: white;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-
-        .pos-header p {
-            color: rgba(255,255,255,0.8);
-            font-size: 13px;
-            margin-top: 4px;
-        }
-
+        .pos-header h1 { color: white; font-size: 24px; font-weight: 700; letter-spacing: 1px; }
+        .pos-header p { color: rgba(255,255,255,0.8); font-size: 13px; margin-top: 4px; }
         .header-logo {
-            width: 60px;
-            height: 60px;
-            background: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: #c0392b;
-            font-size: 18px;
+            width: 60px; height: 60px; background: white; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; color: #c0392b; font-size: 18px;
         }
-
-        .pos-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .pos-grid-3 {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .card {
-            background: #16213e;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #0f3460;
-        }
-
+        .pos-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .card { background: #16213e; border-radius: 12px; padding: 20px; border: 1px solid #0f3460; }
         .card-title {
-            color: #e74c3c;
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #0f3460;
+            color: #e74c3c; font-size: 12px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 1px solid #0f3460;
         }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
+        .form-group { margin-bottom: 14px; }
         .form-group label {
-            display: block;
-            color: #a0aec0;
-            font-size: 11px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
+            display: block; color: #a0aec0; font-size: 11px; font-weight: 600;
+            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
         }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            background: #0f3460;
-            border: 1px solid #1a4a7a;
-            border-radius: 8px;
-            padding: 10px 14px;
-            color: white;
-            font-size: 14px;
-            transition: all 0.3s;
-            outline: none;
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; background: #0f3460; border: 1px solid #1a4a7a; border-radius: 8px;
+            padding: 10px 14px; color: white; font-size: 14px; transition: all 0.3s; outline: none;
         }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: #e74c3c;
-            box-shadow: 0 0 0 3px rgba(231,76,60,0.2);
-        }
-
+        .form-group input:focus, .form-group select:focus { border-color: #e74c3c; box-shadow: 0 0 0 3px rgba(231,76,60,0.2); }
         .form-group input::placeholder { color: #4a6080; }
-
         .form-group select option { background: #0f3460; }
 
-        /* Items Table */
-        .items-card {
-            background: #16213e;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #0f3460;
-            margin-bottom: 20px;
-        }
-
-        .items-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 15px;
-        }
-
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
+        .items-card { background: #16213e; border-radius: 12px; padding: 20px; border: 1px solid #0f3460; margin-bottom: 20px; }
+        .items-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+        .items-table { width: 100%; border-collapse: collapse; }
         .items-table th {
-            background: #0f3460;
-            color: #e74c3c;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 10px 12px;
-            text-align: left;
+            background: #0f3460; color: #e74c3c; font-size: 11px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1px; padding: 10px 12px; text-align: left;
         }
-
-        .items-table th:first-child { border-radius: 8px 0 0 8px; }
-        .items-table th:last-child { border-radius: 0 8px 8px 0; }
-
-        .items-table td {
-            padding: 8px 6px;
-            border-bottom: 1px solid #0f3460;
-            vertical-align: middle;
+        .items-table td { padding: 8px 6px; border-bottom: 1px solid #0f3460; vertical-align: middle; }
+        .items-table td input, .items-table td select {
+            width: 100%; background: #0f3460; border: 1px solid #1a4a7a; border-radius: 6px;
+            padding: 8px 10px; color: white; font-size: 13px; outline: none; transition: border-color 0.3s;
         }
-
-        .items-table td input,
-        .items-table td select {
-            width: 100%;
-            background: #0f3460;
-            border: 1px solid #1a4a7a;
-            border-radius: 6px;
-            padding: 8px 10px;
-            color: white;
-            font-size: 13px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .items-table td input:focus,
-        .items-table td select:focus {
-            border-color: #e74c3c;
-        }
-
-        .items-table td input::placeholder { color: #4a6080; }
-
+        .items-table td input:focus, .items-table td select:focus { border-color: #e74c3c; }
         .amount-display {
-            background: #0f3460;
-            border: 1px solid #1a4a7a;
-            border-radius: 6px;
-            padding: 8px 10px;
-            color: #2ecc71;
-            font-weight: 700;
-            font-size: 14px;
-            min-width: 100px;
-            text-align: right;
+            background: #0f3460; border: 1px solid #1a4a7a; border-radius: 6px;
+            padding: 8px 10px; color: #2ecc71; font-weight: 700; font-size: 14px; min-width: 100px; text-align: right;
         }
-
         .btn-remove {
-            background: rgba(231,76,60,0.2);
-            border: 1px solid #e74c3c;
-            color: #e74c3c;
-            width: 30px;
-            height: 30px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
+            background: rgba(231,76,60,0.2); border: 1px solid #e74c3c; color: #e74c3c;
+            width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center; transition: all 0.3s;
         }
-
         .btn-remove:hover { background: #e74c3c; color: white; }
-
         .btn-add-item {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
+            background: linear-gradient(135deg, #27ae60, #2ecc71); border: none; color: white;
+            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px; transition: all 0.3s;
         }
+        .btn-add-item:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(46,204,113,0.4); }
 
-        .btn-add-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(46,204,113,0.4);
-        }
-
-        /* Summary */
-        .summary-card {
-            background: #16213e;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #0f3460;
-            margin-bottom: 20px;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #0f3460;
-            color: #a0aec0;
-            font-size: 14px;
-        }
-
+        .summary-card { background: #16213e; border-radius: 12px; padding: 20px; border: 1px solid #0f3460; margin-bottom: 20px; }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #0f3460; color: #a0aec0; font-size: 14px; }
         .summary-row:last-child { border-bottom: none; }
-
-        .summary-row.total {
-            color: white;
-            font-size: 20px;
-            font-weight: 700;
-            padding-top: 15px;
-        }
-
+        .summary-row.total { color: white; font-size: 20px; font-weight: 700; padding-top: 15px; }
         .summary-row span:last-child { color: #2ecc71; font-weight: 600; }
         .summary-row.total span:last-child { color: #2ecc71; font-size: 22px; }
         .summary-row.discount-row span:last-child { color: #e74c3c; }
 
-        /* Action Buttons */
-        .action-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
+        .action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .btn-primary {
-            background: linear-gradient(135deg, #c0392b, #e74c3c);
-            border: none;
-            color: white;
-            padding: 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            background: linear-gradient(135deg, #c0392b, #e74c3c); border: none; color: white;
+            padding: 16px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(231,76,60,0.5);
-        }
-
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(231,76,60,0.5); }
         .btn-secondary {
-            background: linear-gradient(135deg, #2980b9, #3498db);
-            border: none;
-            color: white;
-            padding: 16px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            background: linear-gradient(135deg, #2980b9, #3498db); border: none; color: white;
+            padding: 16px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 700;
+            display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s;
         }
-
-        .btn-secondary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(52,152,219,0.5);
-        }
-
+        .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(52,152,219,0.5); }
         .btn-reset {
-            background: linear-gradient(135deg, #7f8c8d, #95a5a6);
-            border: none;
-            color: white;
-            padding: 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            width: 100%;
-            transition: all 0.3s;
+            background: linear-gradient(135deg, #7f8c8d, #95a5a6); border: none; color: white;
+            padding: 12px; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%; transition: all 0.3s;
         }
+        .inv-badge { background: #e74c3c; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 
-        .btn-reset:hover { background: linear-gradient(135deg, #636e72, #7f8c8d); }
-
-        /* Invoice Counter Badge */
-        .inv-badge {
-            background: #e74c3c;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        /* ===== INVOICE PRINT AREA ===== */
+        /* ===== INVOICE PRINT AREA — EXACT MATCH ===== */
         #invoiceArea {
-            display: none;
-            background: white;
-            width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            padding: 15mm 15mm 10mm 15mm;
-            font-family: Arial, sans-serif;
-            color: #222;
-            position: relative;
+            display: none; background: white; width: 210mm; min-height: 297mm;
+            margin: 0 auto; padding: 12mm 15mm 10mm 15mm; font-family: Arial, Helvetica, sans-serif; color: #000; position: relative;
         }
 
-        .inv-header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #ddd;
-        }
+        /* Header row */
+        .inv-header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
 
-        .inv-logo-area {
-            width: 180px;
-        }
+        .inv-logo-area { width: 200px; }
+        .inv-logo-area img { width: 180px; height: auto; }
 
-        .inv-logo-area img {
-            width: 160px;
-            height: auto;
-        }
-
-        .inv-company-area {
-            text-align: right;
-            max-width: 280px;
-        }
-
-        .inv-page-label {
-            color: #666;
-            font-size: 11px;
-            margin-bottom: 4px;
-        }
-
+        .inv-company-area { text-align: right; max-width: 300px; }
+        .inv-page-label { color: #333; font-size: 12px; margin-bottom: 2px; }
         .inv-title {
-            font-size: 24px;
-            font-weight: 900;
-            color: #111;
-            letter-spacing: 1px;
-            border-bottom: 2px solid #111;
-            padding-bottom: 4px;
-            margin-bottom: 6px;
+            font-size: 26px; font-weight: 900; color: #000; letter-spacing: 0.5px;
+            border-bottom: 2px solid #ccc; padding-bottom: 3px; margin-bottom: 8px;
         }
+        .inv-company-name { font-size: 20px; font-weight: 900; color: #000; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .inv-company-addr { font-size: 12px; color: #222; line-height: 1.6; }
+        .inv-company-phone { font-size: 13px; color: #000; font-weight: 600; margin: 4px 0; }
+        .inv-date-box { margin-top: 8px; padding-top: 8px; border-top: 1px solid #ccc; font-size: 13px; color: #000; }
+        .inv-date-box strong { font-weight: 700; }
 
-        .inv-company-name {
-            font-size: 18px;
-            font-weight: 900;
-            color: #111;
-            letter-spacing: 0.5px;
-            margin-bottom: 6px;
-        }
+        /* Customer section */
+        .inv-customer-section { margin-bottom: 15px; }
+        .inv-cust-line { font-size: 13px; margin-bottom: 4px; }
+        .inv-cust-line strong { font-weight: 700; }
 
-        .inv-company-addr {
-            font-size: 11px;
-            color: #444;
-            line-height: 1.6;
-        }
-
-        .inv-company-phone {
-            font-size: 12px;
-            color: #222;
-            font-weight: 600;
-            margin: 5px 0;
-        }
-
-        .inv-date-box {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #ddd;
-            font-size: 12px;
-            color: #444;
-        }
-
-        /* Customer Section */
-        .inv-customer-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 6px;
-            border: 1px solid #eee;
-        }
-
-        .inv-customer-section .field-row {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 8px;
-            font-size: 12px;
-        }
-
-        .inv-customer-section .field-label {
-            font-weight: 700;
-            color: #555;
-            min-width: 70px;
-        }
-
-        .inv-customer-section .field-value {
-            color: #111;
-            font-weight: 600;
-        }
-
-        /* Items Table */
-        .inv-items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-            font-size: 12px;
-        }
-
-        .inv-items-table thead tr {
-            background: #222;
-        }
-
+        /* Items table */
+        .inv-items-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; }
+        .inv-items-table thead tr { border-bottom: 2px solid #000; }
         .inv-items-table thead th {
-            color: white;
-            padding: 10px 12px;
-            text-align: right;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 8px 10px; text-align: right; font-size: 12px; font-weight: 900;
+            text-transform: uppercase; color: #000; border-bottom: 2px solid #000;
         }
-
         .inv-items-table thead th:first-child { text-align: left; }
-
-        .inv-items-table tbody tr:nth-child(even) { background: #f5f5f5; }
-
-        .inv-items-table tbody td {
-            padding: 10px 12px;
-            border-bottom: 1px solid #e5e5e5;
-            text-align: right;
-            font-size: 12px;
-        }
-
+        .inv-items-table tbody td { padding: 8px 10px; text-align: right; font-size: 12px; border-bottom: 1px solid #ddd; }
         .inv-items-table tbody td:first-child { text-align: left; }
+        .inv-items-table tfoot tr { border-top: 2px solid #000; }
 
-        .inv-items-table .item-name { font-weight: 700; color: #111; }
-        .inv-items-table .item-sub { color: #666; font-size: 10px; }
+        /* Bottom section */
+        .inv-bottom-section { display: flex; justify-content: space-between; margin-bottom: 15px; margin-top: 10px; }
 
-        .inv-items-table tfoot td {
-            padding: 8px 12px;
-            font-size: 12px;
-        }
-
-        /* Tax Summary */
-        .inv-bottom-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .inv-tax-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 11px;
-        }
-
+        .inv-tax-table { width: 280px; border-collapse: collapse; font-size: 12px; }
         .inv-tax-table th {
-            background: #f0f0f0;
-            padding: 8px 10px;
-            text-align: center;
-            font-weight: 700;
-            color: #444;
-            border: 1px solid #ddd;
+            background: #fff; padding: 8px 10px; text-align: center; font-weight: 900;
+            color: #000; border-bottom: 2px solid #000; font-size: 12px;
         }
+        .inv-tax-table td { padding: 8px 10px; text-align: center; color: #000; font-size: 12px; }
 
-        .inv-tax-table td {
-            padding: 8px 10px;
-            text-align: center;
-            border: 1px solid #ddd;
-            color: #333;
-        }
+        .inv-totals-box { width: 280px; }
+        .inv-total-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; border-bottom: 1px solid #eee; }
+        .inv-total-row .t-label { color: #333; }
+        .inv-total-row .t-value { font-weight: 700; color: #000; text-align: right; }
+        .inv-total-row.grand-total { border-top: 2px solid #000; padding-top: 10px; margin-top: 5px; }
+        .inv-total-row.grand-total .t-label { font-size: 14px; font-weight: 900; color: #000; }
+        .inv-total-row.grand-total .t-value { font-size: 14px; font-weight: 900; color: #000; }
 
-        .inv-totals-box {
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            overflow: hidden;
-        }
+        /* Gold stripe */
+        .gold-stripe { height: 8px; background: linear-gradient(to right, #f5deb3, #f0d890, #f5deb3); margin: 20px 0 15px 0; }
 
-        .inv-total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 9px 14px;
-            font-size: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .inv-total-row:last-child { border-bottom: none; }
-
-        .inv-total-row .t-label { color: #555; }
-
-        .inv-total-row .t-value { font-weight: 700; color: #111; }
-
-        .inv-total-row.grand-total {
-            background: #222;
-            color: white;
-        }
-
-        .inv-total-row.grand-total .t-label { color: white; font-size: 13px; font-weight: 700; }
-        .inv-total-row.grand-total .t-value { color: #ffd700; font-size: 15px; font-weight: 900; }
-
-        .inv-total-row.discount-line .t-value { color: #c0392b; }
-
-        /* Payment Info */
-        .inv-payment-section {
-            background: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 6px;
-            padding: 15px 20px;
-            margin-bottom: 15px;
-        }
-
+        /* Payment info */
+        .inv-payment-section { margin-bottom: 15px; }
         .inv-payment-section h3 {
-            font-size: 13px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #333;
-            margin-bottom: 10px;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #e74c3c;
+            font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+            color: #000; margin-bottom: 10px;
         }
-
-        .inv-payment-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 12px;
-        }
-
-        .inv-payment-item { display: flex; gap: 8px; }
-        .inv-payment-item .p-label { color: #666; font-weight: 600; }
-        .inv-payment-item .p-value { color: #111; font-weight: 700; }
-
-        /* Gold Stripe */
-        .gold-stripe {
-            height: 6px;
-            background: linear-gradient(to right, #f39c12, #f1c40f, #f39c12);
-            margin-bottom: 12px;
-            border-radius: 3px;
-        }
+        .inv-payment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; }
+        .inv-payment-item { display: flex; gap: 10px; }
+        .inv-payment-item .p-label { color: #333; font-weight: 600; }
+        .inv-payment-item .p-value { color: #000; font-weight: 700; }
 
         /* Footer */
-        .inv-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-top: 12px;
-            border-top: 1px solid #ddd;
-            font-size: 11px;
-            color: #888;
-        }
-
+        .inv-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; font-size: 12px; color: #888; }
         .inv-footer .company-short { font-weight: 700; color: #555; }
 
-        /* Amount in words */
-        .inv-words-box {
-            background: #fffbf0;
-            border: 1px solid #f39c12;
-            border-radius: 6px;
-            padding: 10px 15px;
-            margin-bottom: 15px;
-            font-size: 12px;
-        }
-
-        .inv-words-box .w-label { color: #e67e22; font-weight: 700; font-size: 11px; }
-        .inv-words-box .w-value { color: #111; font-weight: 600; margin-top: 3px; }
-
-        /* GST Badge */
-        .gst-info {
-            display: inline-block;
-            background: #e8f5e9;
-            border: 1px solid #4caf50;
-            color: #2e7d32;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 10px;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        /* ===== NOTIFICATION ===== */
+        /* Notification */
         .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #27ae60;
-            color: white;
-            padding: 14px 24px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 9999;
-            transform: translateX(300px);
-            transition: transform 0.4s ease;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            position: fixed; top: 20px; right: 20px; background: #27ae60; color: white;
+            padding: 14px 24px; border-radius: 10px; font-size: 14px; font-weight: 600; z-index: 9999;
+            transform: translateX(300px); transition: transform 0.4s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
-
         .notification.show { transform: translateX(0); }
 
-        /* ===== PRINT STYLES ===== */
         @media print {
             body * { visibility: hidden; }
             #invoiceArea, #invoiceArea * { visibility: visible; }
             #invoiceArea {
-                display: block !important;
-                position: fixed;
-                top: 0; left: 0;
-                width: 210mm;
-                margin: 0;
-                padding: 15mm;
-                box-shadow: none;
+                display: block !important; position: fixed; top: 0; left: 0;
+                width: 210mm; margin: 0; padding: 12mm 15mm 10mm 15mm; box-shadow: none;
             }
             .pos-panel { display: none; }
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .pos-grid, .pos-grid-3, .action-buttons { grid-template-columns: 1fr; }
-        }
-
-        /* Scrollbar */
+        @media (max-width: 768px) { .pos-grid, .action-buttons { grid-template-columns: 1fr; } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #1a1a2e; }
         ::-webkit-scrollbar-thumb { background: #c0392b; border-radius: 3px; }
-
-        .section-full {
-            grid-column: 1 / -1;
-        }
-
-        .inv-invoice-number {
-            background: #e74c3c;
-            color: white;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 700;
-            display: inline-block;
-            margin-bottom: 8px;
-        }
     </style>
 </head>
 <body>
 
-<!-- NOTIFICATION -->
 <div class="notification" id="notification">✓ Invoice Generated Successfully!</div>
 
 <!-- ===== POS PANEL ===== -->
@@ -721,9 +222,7 @@
         </div>
     </div>
 
-    <!-- Row 1: Invoice & Customer -->
     <div class="pos-grid">
-        <!-- Invoice Details -->
         <div class="card">
             <div class="card-title">📋 Invoice Details</div>
             <div class="pos-grid">
@@ -749,13 +248,8 @@
                     <option value="Cheque">Cheque</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>GST Number (Optional)</label>
-                <input type="text" id="gstNum" placeholder="e.g. 23XXXXX0000X1Z5">
-            </div>
         </div>
 
-        <!-- Customer Details -->
         <div class="card">
             <div class="card-title">👤 Customer Details</div>
             <div class="form-group">
@@ -770,9 +264,15 @@
                 <label>Address</label>
                 <input type="text" id="custAddress" placeholder="Customer address">
             </div>
+        </div>
+    </div>
+
+    <div class="pos-grid">
+        <div class="card">
+            <div class="card-title">📱 Device Information</div>
             <div class="pos-grid">
                 <div class="form-group">
-                    <label>Model</label>
+                    <label>Model *</label>
                     <input type="text" id="phoneModel" placeholder="e.g. iPhone 15">
                 </div>
                 <div class="form-group">
@@ -780,13 +280,6 @@
                     <input type="text" id="phoneStorage" placeholder="e.g. 128GB">
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Row 2: IMEI & Color -->
-    <div class="pos-grid">
-        <div class="card">
-            <div class="card-title">📱 Device Information</div>
             <div class="pos-grid">
                 <div class="form-group">
                     <label>IMEI 1 *</label>
@@ -795,21 +288,6 @@
                 <div class="form-group">
                     <label>IMEI 2</label>
                     <input type="text" id="imei2" placeholder="15-digit IMEI 2">
-                </div>
-            </div>
-            <div class="pos-grid">
-                <div class="form-group">
-                    <label>Color</label>
-                    <input type="text" id="phoneColor" placeholder="e.g. Midnight Black">
-                </div>
-                <div class="form-group">
-                    <label>Condition</label>
-                    <select id="phoneCondition">
-                        <option value="Brand New">Brand New</option>
-                        <option value="Open Box">Open Box</option>
-                        <option value="Refurbished">Refurbished</option>
-                        <option value="Used">Used</option>
-                    </select>
                 </div>
             </div>
         </div>
@@ -828,13 +306,13 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label>Global Discount (%)</label>
+                    <label>Discount (%)</label>
                     <input type="number" id="globalDiscount" value="0" min="0" max="100" placeholder="0" oninput="calculateAll()">
                 </div>
             </div>
             <div class="form-group">
                 <label>Notes / Remarks</label>
-                <textarea id="notes" rows="2" placeholder="Any notes for the invoice..." style="resize:none;"></textarea>
+                <textarea id="notes" rows="2" placeholder="Any notes..." style="resize:none;"></textarea>
             </div>
         </div>
     </div>
@@ -843,16 +321,13 @@
     <div class="items-card">
         <div class="items-header">
             <div class="card-title" style="margin:0;">🛒 Items / Products</div>
-            <button class="btn-add-item" onclick="addItemRow()">
-                ➕ Add Item
-            </button>
+            <button class="btn-add-item" onclick="addItemRow()">➕ Add Item</button>
         </div>
-
         <div style="overflow-x:auto;">
             <table class="items-table">
                 <thead>
                     <tr>
-                        <th style="min-width:180px;">#  Item Description</th>
+                        <th style="min-width:180px;"># Item Description</th>
                         <th style="min-width:110px;">Price (₹)</th>
                         <th style="min-width:80px;">Qty</th>
                         <th style="min-width:100px;">Discount (%)</th>
@@ -861,79 +336,37 @@
                         <th style="min-width:50px;">Del</th>
                     </tr>
                 </thead>
-                <tbody id="itemsTableBody">
-                    <!-- rows added by JS -->
-                </tbody>
+                <tbody id="itemsTableBody"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- Summary + Actions -->
     <div class="pos-grid">
-        <!-- Summary -->
         <div class="summary-card">
             <div class="card-title">💰 Order Summary</div>
-            <div class="summary-row">
-                <span>Subtotal</span>
-                <span id="summarySubtotal">₹ 0.00</span>
-            </div>
-            <div class="summary-row discount-row">
-                <span>Total Discount</span>
-                <span id="summaryDiscount">- ₹ 0.00</span>
-            </div>
-            <div class="summary-row">
-                <span>IGST</span>
-                <span id="summaryIGST">₹ 0.00</span>
-            </div>
-            <div class="summary-row">
-                <span>Net Amount (before tax)</span>
-                <span id="summaryNet">₹ 0.00</span>
-            </div>
-            <div class="summary-row total">
-                <span>TOTAL DUE (INR)</span>
-                <span id="summaryTotal">₹ 0.00</span>
-            </div>
+            <div class="summary-row"><span>Subtotal</span><span id="summarySubtotal">₹ 0.00</span></div>
+            <div class="summary-row discount-row"><span>Total Discount</span><span id="summaryDiscount">- ₹ 0.00</span></div>
+            <div class="summary-row"><span>Net Amount</span><span id="summaryNet">₹ 0.00</span></div>
+            <div class="summary-row"><span>IGST</span><span id="summaryIGST">₹ 0.00</span></div>
+            <div class="summary-row total"><span>TOTAL DUE (INR)</span><span id="summaryTotal">₹ 0.00</span></div>
         </div>
-
-        <!-- Actions -->
         <div>
             <div class="action-buttons">
-                <button class="btn-primary" onclick="generateInvoice()">
-                    🧾 Generate Invoice
-                </button>
-                <button class="btn-secondary" onclick="printInvoice()">
-                    🖨️ Print / Save PDF
-                </button>
+                <button class="btn-primary" onclick="generateInvoice()">🧾 Generate Invoice</button>
+                <button class="btn-secondary" onclick="printInvoice()">🖨️ Print / Save PDF</button>
             </div>
-            <button class="btn-reset" onclick="resetForm()">
-                🔄 Reset / New Invoice
-            </button>
-
-            <div class="summary-card" style="margin-top:15px;">
-                <div class="card-title">ℹ️ Quick Info</div>
-                <div style="color:#a0aec0;font-size:12px;line-height:1.8;">
-                    • Enter price & qty to auto-calculate amounts<br>
-                    • Per-item discount overrides global discount<br>
-                    • IGST applied on (Price × Qty - Discount)<br>
-                    • All fields update in real-time<br>
-                    • Click "Generate Invoice" to preview
-                </div>
-            </div>
+            <button class="btn-reset" onclick="resetForm()">🔄 Reset / New Invoice</button>
         </div>
     </div>
 </div>
 
-<!-- ===== INVOICE PRINT AREA ===== -->
+<!-- ===== INVOICE PRINT AREA — EXACT LAYOUT MATCH ===== -->
 <div id="invoiceArea">
     <!-- Header -->
     <div class="inv-header-row">
         <div class="inv-logo-area">
-            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDE2MCAxMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iNzAiIGN5PSI2MCIgcj0iNTUiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2MwMzkyYiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PHBhdGggZD0iTTMwIDEwMCBRNzAgMzAgMTEwIDgwIiBmaWxsPSJub25lIiBzdHJva2U9IiMxMTExMTEiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHRleHQgeD0iMzUiIHk9Ijc1IiBmb250LXNpemU9IjUwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiNjMDM5MmIiPkpNPC90ZXh0Pjwvc3ZnPg==" 
-                 alt="JM Mobile Logo" 
-                 onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-            <div style="display:none;width:120px;height:90px;background:#c0392b;border-radius:10px;align-items:center;justify-content:center;color:white;font-size:28px;font-weight:900;">JM</div>
+            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjEzNSIgdmlld0JveD0iMCAwIDE4MCAxMzUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iODAiIGN5PSI2NSIgcj0iNTgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2MwMzkyYiIgc3Ryb2tlLXdpZHRoPSI4Ii8+PHBhdGggZD0iTTI1IDExMCBRODAgMzUgMTM1IDk1IiBmaWxsPSJub25lIiBzdHJva2U9IiMxMTExMTEiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHRleHQgeD0iNDUiIHk9IjkwIiBmb250LXNpemU9IjU1IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtd2VpZ2h0PSI5MDAiIGZpbGw9IiNjMDM5MmIiPkpNPC90ZXh0Pjwvc3ZnPg==" alt="JM Logo" onerror="this.style.display='none'">
         </div>
-
         <div class="inv-company-area">
             <div class="inv-page-label">Page 1 of 1</div>
             <div class="inv-title">TAX INVOICE</div>
@@ -942,92 +375,61 @@
                 Jain Mobile, Boda Road, Rajgarh,<br>
                 Pachore, Madhya Pradesh 465683
             </div>
-            <div class="inv-company-phone">8109758044 / 7879757647</div>
-            <span class="gst-info" id="invGstBadge" style="display:none;">GST: <span id="invGstDisplay"></span></span>
+            <div class="inv-company-phone">8109758044/7879757647</div>
             <div class="inv-date-box">
-                Invoice Date: <strong id="invDateDisplay"></strong><br>
-                Invoice No: <strong id="invNumDisplay"></strong>
+                Invoice date:<br>
+                <strong id="invDateDisplay"></strong>
             </div>
         </div>
     </div>
 
-    <!-- Invoice Number Banner -->
-    <div style="margin-bottom:15px;">
-        <span class="inv-invoice-number">INVOICE # <span id="invNumBanner"></span></span>
-    </div>
-
-    <!-- Customer Info -->
+    <!-- Customer Info Line -->
     <div class="inv-customer-section">
-        <div>
-            <div class="field-row"><span class="field-label">NAME:</span><span class="field-value" id="invCustName"></span></div>
-            <div class="field-row"><span class="field-label">PHONE:</span><span class="field-value" id="invCustPhone"></span></div>
-            <div class="field-row"><span class="field-label">ADDRESS:</span><span class="field-value" id="invCustAddr"></span></div>
-        </div>
-        <div>
-            <div class="field-row"><span class="field-label">MODEL:</span><span class="field-value" id="invModel"></span></div>
-            <div class="field-row"><span class="field-label">STORAGE:</span><span class="field-value" id="invStorage"></span></div>
-            <div class="field-row"><span class="field-label">COLOR:</span><span class="field-value" id="invColor"></span></div>
-            <div class="field-row"><span class="field-label">CONDITION:</span><span class="field-value" id="invCondition"></span></div>
-        </div>
-    </div>
-
-    <!-- IMEI Row -->
-    <div style="background:#f0f0f0;padding:8px 15px;border-radius:6px;margin-bottom:15px;font-size:12px;display:flex;gap:30px;">
-        <div><strong>IMEI 1:</strong> <span id="invImei1" style="font-family:monospace;color:#333;"></span></div>
-        <div><strong>IMEI 2:</strong> <span id="invImei2" style="font-family:monospace;color:#333;"></span></div>
+        <div class="inv-cust-line"><strong>NAME*</strong> <span id="invCustName"></span></div>
+        <div class="inv-cust-line"><strong>MODEL *</strong> <span id="invModel"></span> &nbsp;&nbsp;&nbsp; storage *~ <span id="invStorage"></span></div>
     </div>
 
     <!-- Items Table -->
     <table class="inv-items-table">
         <thead>
             <tr>
-                <th style="text-align:left;width:35%;">Item Description</th>
-                <th>Price (₹)</th>
-                <th>Qty</th>
-                <th>Discount</th>
-                <th>IGST %</th>
-                <th>IGST Amt</th>
-                <th>Amount (₹)</th>
+                <th style="text-align:left;width:30%;">Item</th>
+                <th>PRICE</th>
+                <th>QTY</th>
+                <th>DISCOUNT</th>
+                <th>IGST</th>
+                <th>AMOUNT</th>
             </tr>
         </thead>
-        <tbody id="invItemsBody">
-        </tbody>
+        <tbody id="invItemsBody"></tbody>
     </table>
 
     <!-- Bottom Section -->
     <div class="inv-bottom-section">
-        <!-- Tax Table -->
         <div>
             <table class="inv-tax-table">
                 <thead>
                     <tr>
-                        <th>IGST Rate</th>
-                        <th>Taxable Basis</th>
-                        <th>IGST Amount</th>
+                        <th>IGST rate</th>
+                        <th>Basis</th>
+                        <th>IGST</th>
                     </tr>
                 </thead>
-                <tbody id="invTaxBody">
-                </tbody>
+                <tbody id="invTaxBody"></tbody>
             </table>
         </div>
-
-        <!-- Totals -->
         <div class="inv-totals-box">
             <div class="inv-total-row">
-                <span class="t-label">Subtotal</span>
-                <span class="t-value" id="invSubtotal"></span>
-            </div>
-            <div class="inv-total-row discount-line">
-                <span class="t-label">Discount</span>
-                <span class="t-value" id="invDiscountTotal"></span>
-            </div>
-            <div class="inv-total-row">
-                <span class="t-label">Net Amount</span>
+                <span class="t-label">Net amount</span>
                 <span class="t-value" id="invNetAmount"></span>
             </div>
             <div class="inv-total-row">
                 <span class="t-label">IGST</span>
                 <span class="t-value" id="invIGSTTotal"></span>
+            </div>
+            <div class="inv-total-row">
+                <span class="t-label">Discount</span>
+                <span class="t-value" id="invDiscountTotal"></span>
             </div>
             <div class="inv-total-row grand-total">
                 <span class="t-label">TOTAL DUE (INR)</span>
@@ -1036,69 +438,49 @@
         </div>
     </div>
 
-    <!-- Amount in Words -->
-    <div class="inv-words-box">
-        <div class="w-label">AMOUNT IN WORDS (INR):</div>
-        <div class="w-value" id="invAmountWords"></div>
-    </div>
-
     <!-- Gold Stripe -->
     <div class="gold-stripe"></div>
 
     <!-- Payment Info -->
     <div class="inv-payment-section">
-        <h3>💳 Payment Information</h3>
+        <h3>PAYMENT INFORMATION</h3>
         <div class="inv-payment-grid">
             <div class="inv-payment-item">
-                <span class="p-label">Invoice No:</span>
+                <span class="p-label">Invoice number:</span>
                 <span class="p-value" id="invPayInvNum"></span>
             </div>
             <div class="inv-payment-item">
-                <span class="p-label">Amount:</span>
+                <span class="p-label">Amount (INR):</span>
                 <span class="p-value" id="invPayAmount"></span>
             </div>
             <div class="inv-payment-item">
-                <span class="p-label">Method:</span>
+                <span class="p-label">Payment method:</span>
                 <span class="p-value" id="invPayMethod"></span>
-            </div>
-            <div class="inv-payment-item">
-                <span class="p-label">Date:</span>
-                <span class="p-value" id="invPayDate"></span>
             </div>
         </div>
     </div>
 
-    <!-- Notes -->
-    <div id="invNotesSection" style="display:none;margin-bottom:12px;padding:10px 15px;background:#fffbf0;border:1px solid #f0e68c;border-radius:6px;font-size:12px;">
-        <strong style="color:#e67e22;">Notes:</strong> <span id="invNotes"></span>
-    </div>
-
     <!-- Footer -->
     <div class="inv-footer">
-        <span class="company-short">JM MOBILE PACHORE</span>
-        <span>This is a computer generated invoice</span>
-        <span>7879757647 | 8109758044</span>
+        <span class="company-short">JM MOBILE</span>
+        <span>7879757647</span>
     </div>
 </div>
 
 <script>
-    // ===== GLOBALS =====
     let itemCount = 0;
 
-    // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
         const today = new Date();
         document.getElementById('invoiceDate').value = today.toISOString().split('T')[0];
         addItemRow();
     });
 
-    // ===== INVOICE BADGE =====
     function updateInvBadge() {
         const n = document.getElementById('invoiceNum').value || '101';
         document.getElementById('invNumberBadge').textContent = '#' + n;
     }
 
-    // ===== ADD ITEM ROW =====
     function addItemRow() {
         itemCount++;
         const tbody = document.getElementById('itemsTableBody');
@@ -1109,26 +491,12 @@
         tr.id = 'item_' + itemCount;
         tr.innerHTML = `
             <td>
-                <input type="text" placeholder="Product / Item name" 
-                       id="itemName_${itemCount}" style="margin-bottom:4px;">
-                <input type="text" placeholder="Description (optional)" 
-                       id="itemDesc_${itemCount}" style="font-size:11px;color:#8899aa;">
+                <input type="text" placeholder="Product / Item name" id="itemName_${itemCount}" style="margin-bottom:4px;">
+                <input type="text" placeholder="Description (optional)" id="itemDesc_${itemCount}" style="font-size:11px;color:#8899aa;">
             </td>
-            <td>
-                <input type="number" id="itemPrice_${itemCount}" 
-                       placeholder="0.00" min="0" step="0.01"
-                       oninput="calculateRow(${itemCount})">
-            </td>
-            <td>
-                <input type="number" id="itemQty_${itemCount}" 
-                       value="1" min="1"
-                       oninput="calculateRow(${itemCount})">
-            </td>
-            <td>
-                <input type="number" id="itemDiscount_${itemCount}" 
-                       value="${discDefault}" min="0" max="100" placeholder="0"
-                       oninput="calculateRow(${itemCount})">
-            </td>
+            <td><input type="number" id="itemPrice_${itemCount}" placeholder="0.00" min="0" step="0.01" oninput="calculateRow(${itemCount})"></td>
+            <td><input type="number" id="itemQty_${itemCount}" value="1" min="1" oninput="calculateRow(${itemCount})"></td>
+            <td><input type="number" id="itemDiscount_${itemCount}" value="${discDefault}" min="0" max="100" placeholder="0" oninput="calculateRow(${itemCount})"></td>
             <td>
                 <select id="itemIGST_${itemCount}" onchange="calculateRow(${itemCount})">
                     <option value="0" ${igstDefault=='0'?'selected':''}>0%</option>
@@ -1139,270 +507,177 @@
                     <option value="28" ${igstDefault=='28'?'selected':''}>28%</option>
                 </select>
             </td>
-            <td>
-                <div class="amount-display" id="itemAmount_${itemCount}">₹ 0.00</div>
-            </td>
-            <td>
-                <button class="btn-remove" onclick="removeRow(${itemCount})" title="Remove item">✕</button>
-            </td>
+            <td><div class="amount-display" id="itemAmount_${itemCount}">₹ 0.00</div></td>
+            <td><button class="btn-remove" onclick="removeRow(${itemCount})">✕</button></td>
         `;
         tbody.appendChild(tr);
     }
 
-    // ===== REMOVE ROW =====
     function removeRow(id) {
         const row = document.getElementById('item_' + id);
         if (row) row.remove();
         calculateAll();
     }
 
-    // ===== CALCULATE ROW =====
     function calculateRow(id) {
-        const price    = parseFloat(document.getElementById('itemPrice_' + id)?.value) || 0;
-        const qty      = parseFloat(document.getElementById('itemQty_' + id)?.value)   || 0;
+        const price = parseFloat(document.getElementById('itemPrice_' + id)?.value) || 0;
+        const qty = parseFloat(document.getElementById('itemQty_' + id)?.value) || 0;
         const discount = parseFloat(document.getElementById('itemDiscount_' + id)?.value) || 0;
-        const igst     = parseFloat(document.getElementById('itemIGST_' + id)?.value)  || 0;
+        const igst = parseFloat(document.getElementById('itemIGST_' + id)?.value) || 0;
 
-        const subtotal     = price * qty;
-        const discAmount   = subtotal * (discount / 100);
-        const afterDisc    = subtotal - discAmount;
-        const igstAmount   = afterDisc * (igst / 100);
-        const total        = afterDisc + igstAmount;
+        const subtotal = price * qty;
+        const discAmount = subtotal * (discount / 100);
+        const afterDisc = subtotal - discAmount;
+        const igstAmount = afterDisc * (igst / 100);
+        const total = afterDisc + igstAmount;
 
         const amtEl = document.getElementById('itemAmount_' + id);
         if (amtEl) amtEl.textContent = '₹ ' + total.toFixed(2);
-
         calculateAll();
-        return { subtotal, discAmount, afterDisc, igstAmount, total, igst };
     }
 
-    // ===== CALCULATE ALL =====
     function calculateAll() {
         const tbody = document.getElementById('itemsTableBody');
         const rows = tbody.querySelectorAll('tr');
-
-        let totalSubtotal  = 0;
-        let totalDiscount  = 0;
-        let totalNet       = 0;
-        let totalIGST      = 0;
-        let grandTotal     = 0;
+        let totalSubtotal = 0, totalDiscount = 0, totalNet = 0, totalIGST = 0, grandTotal = 0;
 
         rows.forEach(row => {
             const id = row.id.replace('item_', '');
             if (!id) return;
-
-            const price    = parseFloat(document.getElementById('itemPrice_' + id)?.value)    || 0;
-            const qty      = parseFloat(document.getElementById('itemQty_' + id)?.value)      || 1;
+            const price = parseFloat(document.getElementById('itemPrice_' + id)?.value) || 0;
+            const qty = parseFloat(document.getElementById('itemQty_' + id)?.value) || 1;
             const discount = parseFloat(document.getElementById('itemDiscount_' + id)?.value) || 0;
-            const igst     = parseFloat(document.getElementById('itemIGST_' + id)?.value)     || 0;
+            const igst = parseFloat(document.getElementById('itemIGST_' + id)?.value) || 0;
 
-            const sub      = price * qty;
-            const disc     = sub * (discount / 100);
-            const net      = sub - disc;
-            const igstAmt  = net * (igst / 100);
-            const total    = net + igstAmt;
+            const sub = price * qty;
+            const disc = sub * (discount / 100);
+            const net = sub - disc;
+            const igstAmt = net * (igst / 100);
+            const total = net + igstAmt;
 
-            // Update display
             const amtEl = document.getElementById('itemAmount_' + id);
             if (amtEl) amtEl.textContent = '₹ ' + total.toFixed(2);
 
             totalSubtotal += sub;
             totalDiscount += disc;
-            totalNet      += net;
-            totalIGST     += igstAmt;
-            grandTotal    += total;
+            totalNet += net;
+            totalIGST += igstAmt;
+            grandTotal += total;
         });
 
         document.getElementById('summarySubtotal').textContent = '₹ ' + totalSubtotal.toFixed(2);
         document.getElementById('summaryDiscount').textContent = '- ₹ ' + totalDiscount.toFixed(2);
-        document.getElementById('summaryNet').textContent      = '₹ ' + totalNet.toFixed(2);
-        document.getElementById('summaryIGST').textContent     = '₹ ' + totalIGST.toFixed(2);
-        document.getElementById('summaryTotal').textContent    = '₹ ' + grandTotal.toFixed(2);
+        document.getElementById('summaryNet').textContent = '₹ ' + totalNet.toFixed(2);
+        document.getElementById('summaryIGST').textContent = '₹ ' + totalIGST.toFixed(2);
+        document.getElementById('summaryTotal').textContent = '₹ ' + grandTotal.toFixed(2);
     }
 
-    // ===== FORMAT CURRENCY =====
     function fmt(n) { return '₹ ' + parseFloat(n).toFixed(2); }
 
-    // ===== FORMAT DATE =====
     function formatDate(dateStr) {
         if (!dateStr) return '';
         const d = new Date(dateStr);
         return d.toLocaleDateString('en-IN', { day:'2-digit', month:'2-digit', year:'numeric' });
     }
 
-    // ===== AMOUNT IN WORDS =====
-    function amountInWords(amount) {
-        const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
-                      'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
-                      'Seventeen','Eighteen','Nineteen'];
-        const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
-
-        function numToWords(n) {
-            if (n === 0) return '';
-            if (n < 20) return ones[n];
-            if (n < 100) return tens[Math.floor(n/10)] + (n%10 ? ' ' + ones[n%10] : '');
-            if (n < 1000) return ones[Math.floor(n/100)] + ' Hundred' + (n%100 ? ' ' + numToWords(n%100) : '');
-            if (n < 100000) return numToWords(Math.floor(n/1000)) + ' Thousand' + (n%1000 ? ' ' + numToWords(n%1000) : '');
-            if (n < 10000000) return numToWords(Math.floor(n/100000)) + ' Lakh' + (n%100000 ? ' ' + numToWords(n%100000) : '');
-            return numToWords(Math.floor(n/10000000)) + ' Crore' + (n%10000000 ? ' ' + numToWords(n%10000000) : '');
-        }
-
-        const rupees = Math.floor(amount);
-        const paise  = Math.round((amount - rupees) * 100);
-        let words = numToWords(rupees) || 'Zero';
-        words += ' Rupees';
-        if (paise > 0) words += ' and ' + numToWords(paise) + ' Paise';
-        words += ' Only';
-        return words;
-    }
-
-    // ===== GENERATE INVOICE =====
     function generateInvoice() {
-        // Gather form data
-        const invNum    = document.getElementById('invoiceNum').value || '101';
-        const invDate   = document.getElementById('invoiceDate').value;
-        const custName  = document.getElementById('custName').value || '—';
-        const custPhone = document.getElementById('custPhone').value || '—';
-        const custAddr  = document.getElementById('custAddress').value || '—';
-        const model     = document.getElementById('phoneModel').value || '—';
-        const storage   = document.getElementById('phoneStorage').value || '—';
-        const color     = document.getElementById('phoneColor').value || '—';
-        const condition = document.getElementById('phoneCondition').value || '—';
-        const imei1     = document.getElementById('imei1').value || '—';
-        const imei2     = document.getElementById('imei2').value || '—';
-        const gstNum    = document.getElementById('gstNum').value;
+        const invNum = document.getElementById('invoiceNum').value || '101';
+        const invDate = document.getElementById('invoiceDate').value;
+        const custName = document.getElementById('custName').value || '—';
+        const model = document.getElementById('phoneModel').value || '—';
+        const storage = document.getElementById('phoneStorage').value || '—';
+        const imei1 = document.getElementById('imei1').value || '—';
+        const imei2 = document.getElementById('imei2').value || '—';
         const payMethod = document.getElementById('paymentMethod').value || '—';
-        const notes     = document.getElementById('notes').value;
 
         // Fill header
-        document.getElementById('invDateDisplay').textContent    = formatDate(invDate);
-        document.getElementById('invNumDisplay').textContent     = invNum;
-        document.getElementById('invNumBanner').textContent      = invNum;
-        document.getElementById('invCustName').textContent       = custName;
-        document.getElementById('invCustPhone').textContent      = custPhone;
-        document.getElementById('invCustAddr').textContent       = custAddr;
-        document.getElementById('invModel').textContent          = model;
-        document.getElementById('invStorage').textContent        = storage;
-        document.getElementById('invColor').textContent          = color;
-        document.getElementById('invCondition').textContent      = condition;
-        document.getElementById('invImei1').textContent          = imei1;
-        document.getElementById('invImei2').textContent          = imei2;
-
-        // GST badge
-        if (gstNum) {
-            document.getElementById('invGstBadge').style.display   = 'inline-block';
-            document.getElementById('invGstDisplay').textContent   = gstNum;
-        } else {
-            document.getElementById('invGstBadge').style.display   = 'none';
-        }
+        document.getElementById('invDateDisplay').textContent = formatDate(invDate);
+        document.getElementById('invCustName').textContent = custName;
+        document.getElementById('invModel').textContent = model;
+        document.getElementById('invStorage').textContent = storage;
 
         // Build items table
-        const tbody    = document.getElementById('itemsTableBody');
-        const rows     = tbody.querySelectorAll('tr');
-        const invBody  = document.getElementById('invItemsBody');
+        const tbody = document.getElementById('itemsTableBody');
+        const rows = tbody.querySelectorAll('tr');
+        const invBody = document.getElementById('invItemsBody');
         invBody.innerHTML = '';
 
-        let totalSubtotal = 0;
-        let totalDiscount = 0;
-        let totalNet      = 0;
-        let totalIGST     = 0;
-        let grandTotal    = 0;
-        let srNo          = 0;
-
-        // For tax table grouping
+        let totalSubtotal = 0, totalDiscount = 0, totalNet = 0, totalIGST = 0, grandTotal = 0;
+        let srNo = 0;
         const taxGroups = {};
 
         rows.forEach(row => {
             const id = row.id.replace('item_', '');
             if (!id) return;
 
-            const name     = document.getElementById('itemName_' + id)?.value || 'Item';
-            const desc     = document.getElementById('itemDesc_' + id)?.value || '';
-            const price    = parseFloat(document.getElementById('itemPrice_' + id)?.value)    || 0;
-            const qty      = parseFloat(document.getElementById('itemQty_' + id)?.value)      || 1;
+            const name = document.getElementById('itemName_' + id)?.value || 'Item';
+            const desc = document.getElementById('itemDesc_' + id)?.value || '';
+            const price = parseFloat(document.getElementById('itemPrice_' + id)?.value) || 0;
+            const qty = parseFloat(document.getElementById('itemQty_' + id)?.value) || 1;
             const discount = parseFloat(document.getElementById('itemDiscount_' + id)?.value) || 0;
-            const igst     = parseFloat(document.getElementById('itemIGST_' + id)?.value)     || 0;
+            const igst = parseFloat(document.getElementById('itemIGST_' + id)?.value) || 0;
 
-            const sub      = price * qty;
-            const disc     = sub * (discount / 100);
-            const net      = sub - disc;
-            const igstAmt  = net * (igst / 100);
-            const total    = net + igstAmt;
+            const sub = price * qty;
+            const disc = sub * (discount / 100);
+            const net = sub - disc;
+            const igstAmt = net * (igst / 100);
+            const total = net + igstAmt;
 
             totalSubtotal += sub;
             totalDiscount += disc;
-            totalNet      += net;
-            totalIGST     += igstAmt;
-            grandTotal    += total;
+            totalNet += net;
+            totalIGST += igstAmt;
+            grandTotal += total;
             srNo++;
 
-            // Tax grouping
             const key = igst + '%';
             if (!taxGroups[key]) taxGroups[key] = { rate: igst, basis: 0, amount: 0 };
-            taxGroups[key].basis  += net;
+            taxGroups[key].basis += net;
             taxGroups[key].amount += igstAmt;
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>
-                    <div class="item-name">${srNo}. ${name}</div>
-                    ${desc ? `<div class="item-sub">${desc}</div>` : ''}
+                <td style="text-align:left;">
+                    <div style="font-weight:700;">${srNo}. ${name}</div>
+                    ${desc ? `<div style="color:#666;font-size:11px;">${desc}</div>` : ''}
+                    <div style="color:#666;font-size:11px;">IMEI1*~ ${imei1}</div>
+                    <div style="color:#666;font-size:11px;">IMEI2*~ ${imei2}</div>
                 </td>
                 <td>₹ ${price.toFixed(2)}</td>
                 <td>${qty}</td>
-                <td>${discount > 0 ? '₹ ' + disc.toFixed(2) + '<br><small>(' + discount + '%)</small>' : '—'}</td>
+                <td>${discount > 0 ? discount + '%' : '0 %'}</td>
                 <td>${igst}%</td>
-                <td>₹ ${igstAmt.toFixed(2)}</td>
-                <td style="font-weight:700;color:#111;">₹ ${total.toFixed(2)}</td>
+                <td style="font-weight:700;">₹ ${total.toFixed(2)}</td>
             `;
             invBody.appendChild(tr);
         });
 
-        // Fill totals
-        document.getElementById('invSubtotal').textContent    = fmt(totalSubtotal);
-        document.getElementById('invDiscountTotal').textContent = '- ' + fmt(totalDiscount);
-        document.getElementById('invNetAmount').textContent   = fmt(totalNet);
-        document.getElementById('invIGSTTotal').textContent   = fmt(totalIGST);
-        document.getElementById('invGrandTotal').textContent  = fmt(grandTotal);
+        // Totals
+        document.getElementById('invNetAmount').textContent = fmt(totalNet);
+        document.getElementById('invIGSTTotal').textContent = fmt(totalIGST);
+        document.getElementById('invDiscountTotal').textContent = fmt(totalDiscount);
+        document.getElementById('invGrandTotal').textContent = fmt(grandTotal);
 
-        // Fill tax table
+        // Tax table
         const taxBody = document.getElementById('invTaxBody');
         taxBody.innerHTML = '';
         Object.values(taxGroups).forEach(g => {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${g.rate}%</td>
-                <td>₹ ${g.basis.toFixed(2)}</td>
-                <td>₹ ${g.amount.toFixed(2)}</td>
-            `;
+            tr.innerHTML = `<td>${g.rate} %</td><td>₹ ${g.basis.toFixed(2)}</td><td>₹ ${g.amount.toFixed(2)}</td>`;
             taxBody.appendChild(tr);
         });
 
-        // Amount in words
-        document.getElementById('invAmountWords').textContent = amountInWords(grandTotal);
+        // Payment
+        document.getElementById('invPayInvNum').textContent = invNum;
+        document.getElementById('invPayAmount').textContent = fmt(grandTotal);
+        document.getElementById('invPayMethod').textContent = payMethod;
 
-        // Payment info
-        document.getElementById('invPayInvNum').textContent  = invNum;
-        document.getElementById('invPayAmount').textContent  = fmt(grandTotal);
-        document.getElementById('invPayMethod').textContent  = payMethod;
-        document.getElementById('invPayDate').textContent    = formatDate(invDate);
-
-        // Notes
-        if (notes) {
-            document.getElementById('invNotesSection').style.display = 'block';
-            document.getElementById('invNotes').textContent = notes;
-        } else {
-            document.getElementById('invNotesSection').style.display = 'none';
-        }
-
-        // Show invoice & hide POS panel
-        document.getElementById('posPanel').style.display   = 'none';
+        // Show invoice
+        document.getElementById('posPanel').style.display = 'none';
         document.getElementById('invoiceArea').style.display = 'block';
-
         showNotification('✓ Invoice Generated! Click Print to save PDF.');
     }
 
-    // ===== PRINT INVOICE =====
     function printInvoice() {
         if (document.getElementById('invoiceArea').style.display === 'none') {
             generateInvoice();
@@ -1412,54 +687,33 @@
         }
     }
 
-    // ===== RESET FORM =====
     function resetForm() {
-        document.getElementById('posPanel').style.display   = 'block';
+        document.getElementById('posPanel').style.display = 'block';
         document.getElementById('invoiceArea').style.display = 'none';
-        document.getElementById('itemsTableBody').innerHTML  = '';
+        document.getElementById('itemsTableBody').innerHTML = '';
         itemCount = 0;
-
-        // Reset fields
-        ['custName','custPhone','custAddress','phoneModel','phoneStorage',
-         'phoneColor','imei1','imei2','gstNum','notes'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
+        ['custName','custPhone','custAddress','phoneModel','phoneStorage','imei1','imei2','notes'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.value = '';
         });
-
         document.getElementById('globalDiscount').value = '0';
-        document.getElementById('igstRate').value       = '18';
-        document.getElementById('phoneCondition').value = 'Brand New';
-        document.getElementById('paymentMethod').value  = '';
-
-        // Increment invoice number
+        document.getElementById('igstRate').value = '18';
+        document.getElementById('paymentMethod').value = '';
         const curr = parseInt(document.getElementById('invoiceNum').value) || 101;
         document.getElementById('invoiceNum').value = curr + 1;
         updateInvBadge();
-
         const today = new Date();
         document.getElementById('invoiceDate').value = today.toISOString().split('T')[0];
-
         addItemRow();
         calculateAll();
         showNotification('🔄 Form Reset. Ready for new invoice!');
     }
 
-    // ===== NOTIFICATION =====
     function showNotification(msg) {
         const el = document.getElementById('notification');
         el.textContent = msg;
         el.classList.add('show');
         setTimeout(() => el.classList.remove('show'), 3500);
     }
-
-    // Back button when viewing invoice
-    document.getElementById('invoiceArea').addEventListener('dblclick', () => {
-        if (confirm('Go back to POS form?')) {
-            document.getElementById('posPanel').style.display   = 'block';
-            document.getElementById('invoiceArea').style.display = 'none';
-        }
-    });
 </script>
-
 </body>
 </html>
