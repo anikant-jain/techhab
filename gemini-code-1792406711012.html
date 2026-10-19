@@ -1,0 +1,2476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Street Cafe - Luxury POS & Financial Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Inter:wght@300;400;500;600;700&family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2C1810; 
+            --gold: #D4AF37;
+            --gold-light: #F3E5AB;
+            --secondary: #8C6D53; 
+            --accent: #11998E; 
+            --save-color: #D35400;
+            --discount-color: #8E44AD;
+            --upi-color: #E67E22; 
+            --cash-color: #2980B9; 
+            --lended-color: #8E44AD; 
+            --expense-color: #C0392B; 
+            --staff-color: #16A085;
+            --leave-color: #D98880;
+            --table-free: #EAEDED; 
+            --table-occupied: #D4AF37;
+            --bg-color: #FDFBF7;
+            --surface: #FFFFFF;
+            --text-dark: #1A1A1A;
+            --text-light: #7F8C8D;
+            --border: #E5E7E9;
+            --luxury-shadow: 0 10px 30px rgba(44, 24, 16, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-dark); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        .view { display: none; width: 100%; height: 100%; }
+        .view.active { display: flex; }
+
+        .clickable-logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .clickable-logo svg { width: 50px; height: 50px; fill: var(--gold); filter: drop-shadow(0 2px 4px rgba(212, 175, 55, 0.3)); transition: transform 0.2s; }
+        .clickable-logo:hover svg { transform: scale(1.05); }
+        .clickable-logo h1 { color: var(--primary); font-family: 'Cinzel', serif; font-size: 28px; font-weight: 700; letter-spacing: 1px; }
+
+        #dashboard-view { flex-direction: column; align-items: center; padding: 30px 20px; overflow-y: auto; }
+        .dash-header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1100px; margin-bottom: 30px; background: var(--surface); padding: 20px 30px; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--luxury-shadow); }
+        
+        .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+        .action-btn { 
+            color: white; border: none; padding: 10px 18px; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; font-size: 13px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .btn-acc { background-color: var(--primary); border: 1px solid var(--gold); }
+        .btn-acc:hover { background-color: #3D2319; }
+        .btn-today { background-color: #27AE60; }
+        .btn-today:hover { background-color: #219653; }
+        .btn-staff-page { background-color: var(--staff-color); }
+        .btn-staff-page:hover { background-color: #117A65; }
+        .btn-analysis { background-color: #2C3E50; }
+        .btn-orders-history { background-color: var(--secondary); }
+        .btn-pending { background-color: var(--accent); }
+        .btn-edit { background-color: var(--text-dark); }
+
+        .real-time-clock {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--bg-color);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .floor-plan { width: 100%; max-width: 1100px; background: var(--surface); padding: 30px; border-radius: 20px; box-shadow: var(--luxury-shadow); margin-bottom: 30px; border: 1px solid var(--border); }
+        .floor-title { font-family: 'Cinzel', serif; font-size: 18px; color: var(--primary); margin-bottom: 20px; border-bottom: 2px solid var(--gold-light); padding-bottom: 8px; }
+        .table-grid { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 30px; }
+        
+        .table-card {
+            width: 110px; height: 110px; border-radius: 16px; background: var(--table-free); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s; border: 2px solid var(--border); position: relative;
+        }
+        .table-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); border-color: var(--gold); }
+        .table-card.occupied { background: var(--primary); color: var(--gold-light); border-color: var(--gold); }
+        .table-card h2 { font-family: 'Cinzel', serif; font-size: 20px; margin-bottom: 4px; }
+        .table-card p { font-size: 11px; font-weight: 500; }
+        .table-type-badge { position: absolute; top: -8px; right: -8px; background: var(--gold); color: var(--primary); font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 10px; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .pos-container { display: flex; width: 100%; height: 100%; }
+        
+        .categories-sidebar {
+            width: 220px;
+            background-color: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 12px;
+            gap: 8px;
+            overflow-y: auto;
+        }
+        .cat-btn {
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            background: var(--bg-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            text-align: left;
+            color: var(--text-dark);
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+        .cat-btn.active, .cat-btn:hover {
+            background: var(--primary);
+            color: var(--gold-light);
+            border-color: var(--gold);
+        }
+
+        .menu-section { flex: 1; display: flex; flex-direction: column; padding: 20px; background-color: var(--bg-color); overflow: hidden; }
+        .cart-section { width: 440px; background-color: var(--surface); border-left: 1px solid var(--border); display: flex; flex-direction: column; box-shadow: var(--luxury-shadow); z-index: 10; }
+        
+        .pos-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px solid var(--gold-light); }
+        .table-indicator { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--primary); background: var(--gold-light); border: 1px solid var(--gold); padding: 5px 15px; border-radius: 8px; }
+
+        .favorites-section { margin-bottom: 15px; background: var(--surface); padding: 12px 15px; border-radius: 12px; border: 1px solid var(--border); }
+        .favorites-title { font-size: 11px; font-weight: 700; color: var(--secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .favorites-grid { display: flex; gap: 10px; overflow-x: auto; }
+        .fav-chip {
+            background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; cursor: pointer; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s;
+        }
+        .fav-chip:hover { background: var(--gold-light); border-color: var(--gold); color: var(--primary); }
+
+        .search-container { margin-bottom: 15px; }
+        .search-input { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: var(--surface); outline: none; transition: border-color 0.2s; }
+        .search-input:focus { border-color: var(--gold); }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; overflow-y: auto; padding-right: 5px; align-content: start; flex: 1; }
+        .menu-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; transition: transform 0.1s, border-color 0.2s; display: flex; flex-direction: column; height: 150px; position: relative; }
+        .menu-item:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .menu-item-img { font-size: 32px; height: 48px; display: flex; align-items: center; justify-content: center; background: var(--bg-color); border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+        .menu-item-img img { width: 100%; height: 100%; object-fit: cover; }
+        .menu-item h3 { font-size: 13px; margin-bottom: 4px; line-height: 1.2; flex: 1; color: var(--text-dark); }
+        .menu-item .price { font-size: 14px; font-weight: 700; color: var(--primary); }
+        
+        .delete-item-btn {
+            position: absolute; top: 5px; right: 5px; background: #FF4D4F; color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;
+        }
+        .menu-item:hover .delete-item-btn { opacity: 1; }
+
+        .category-header { grid-column: 1 / -1; font-family: 'Cinzel', serif; font-size: 16px; color: var(--primary); margin-top: 10px; margin-bottom: 5px; border-bottom: 1px solid var(--gold-light); padding-bottom: 5px; }
+
+        .cart-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+        .cart-header-top { display: flex; justify-content: space-between; align-items: center; }
+        
+        .order-type-toggle { display: flex; background: var(--bg-color); border-radius: 8px; padding: 4px; border: 1px solid var(--border); }
+        .ot-btn { flex: 1; border: none; background: transparent; padding: 6px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 6px; color: var(--text-light); }
+        .ot-btn.active { background: var(--primary); color: var(--gold-light); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+        .cart-items { flex: 1; overflow-y: auto; padding: 15px 20px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+        .cart-item-info h4 { font-size: 13px; margin-bottom: 2px; }
+        .cart-item-info p { font-size: 11px; color: var(--text-light); }
+        .cart-item-price { font-weight: 600; font-size: 13px; width: 60px; text-align: right; }
+        
+        .qty-controls { display: flex; align-items: center; gap: 8px; }
+        .qty-btn { background: var(--border); border: none; width: 22px; height: 22px; border-radius: 4px; cursor: pointer; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        .delete-btn { background: #FF4D4F; color: white; border: none; border-radius: 4px; padding: 4px 6px; cursor: pointer; font-size: 11px; margin-left: 8px; }
+
+        .cart-footer { padding: 15px 20px; background: #FAFAFA; border-top: 1px solid var(--border); }
+        .totals-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 13px; color: var(--text-light); }
+        .totals-row.grand-total { color: var(--primary); font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; margin-top: 5px; margin-bottom: 15px; border-top: 1px solid var(--border); padding-top: 8px; }
+        
+        .cart-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .save-btn { padding: 10px; background-color: var(--save-color); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .discount-btn { padding: 10px; background-color: var(--discount-color); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .kot-btn { padding: 10px; background-color: var(--accent); color: white; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; grid-column: span 1; }
+        .pay-btn { padding: 12px; background-color: var(--gold); color: var(--primary); border: none; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s; grid-column: span 2; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3); }
+
+        /* =========================================
+           VIEWS
+           ========================================= */
+        #today-view, #analysis-view, #history-view, #accounts-page-view, #staff-page-view { flex-direction: column; padding: 30px; overflow-y: auto; background-color: var(--bg-color); }
+        .today-container, .analysis-container, .history-container, .accounts-container, .staff-container { max-width: 1200px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
+
+        .analysis-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; width: 100%; max-width: 1200px; margin-left: auto; margin-right: auto; }
+        
+        .filter-tabs { display: flex; gap: 10px; background: var(--surface); padding: 5px; border-radius: 10px; border: 1px solid var(--border); }
+        .filter-tab { padding: 8px 16px; border: none; background: transparent; border-radius: 6px; font-weight: 600; cursor: pointer; color: var(--text-light); }
+        .filter-tab.active { background: var(--primary); color: var(--gold-light); }
+
+        .date-range-box { display: flex; align-items: center; gap: 10px; background: var(--surface); padding: 5px 15px; border-radius: 10px; border: 1px solid var(--border); flex-wrap: wrap; }
+        .date-range-box input { border: 1px solid var(--border); padding: 6px 10px; border-radius: 6px; font-size: 13px; outline: none; }
+
+        .analysis-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .ana-card { background: var(--surface); padding: 20px; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--luxury-shadow); }
+        .ana-card h4 { font-size: 12px; color: var(--text-light); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; }
+        .ana-card .value { font-family: 'Cinzel', serif; font-size: 24px; font-weight: 700; color: var(--primary); }
+
+        .analysis-split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        @media(max-width: 900px) { .analysis-split-grid { grid-template-columns: 1fr; } }
+
+        .ana-box { background: var(--surface); padding: 25px; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--luxury-shadow); }
+        .ana-box h3 { font-family: 'Cinzel', serif; font-size: 16px; color: var(--primary); margin-bottom: 15px; border-bottom: 1px solid var(--gold-light); padding-bottom: 8px; }
+
+        .data-table { width: 100%; border-collapse: collapse; text-align: left; margin-top: 10px; }
+        .data-table th, .data-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .data-table th { color: var(--secondary); font-weight: 600; background: var(--bg-color); font-family: 'Cinzel', serif; }
+
+        .chart-svg-container { position: relative; width: 100%; height: 240px; margin-top: 15px; background: var(--bg-color); border-radius: 10px; border: 1px solid var(--border); padding: 15px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .chart-svg { width: 100%; height: 160px; overflow: visible; }
+        .chart-axis-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--text-light); border-top: 1px solid var(--border); padding-top: 6px; }
+
+        .khata-action-bar { display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px; }
+
+        /* Modals */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; backdrop-filter: blur(4px); }
+        .modal-content { background: var(--surface); padding: 35px; border-radius: 16px; width: 90%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 15px 40px rgba(0,0,0,0.2); position: relative; border: 1px solid var(--gold-light); }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: var(--text-light); background: none; border: none; }
+        .modal-title { font-family: 'Cinzel', serif; margin-bottom: 20px; color: var(--primary); border-bottom: 2px solid var(--gold-light); padding-bottom: 10px; }
+
+        .payment-methods { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .payment-row { display: flex; gap: 10px; }
+        .btn-pay { flex: 1; padding: 15px; font-size: 14px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .btn-cash { background-color: var(--cash-color); }
+        .btn-upi { background-color: var(--upi-color); }
+        .btn-lended { background-color: var(--lended-color); }
+
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { padding: 15px; border-radius: 12px; background: var(--bg-color); border: 1px solid var(--border); }
+        .stat-card h4 { color: var(--text-light); font-size: 12px; margin-bottom: 6px; font-weight: 600; }
+        .stat-card .val { font-family: 'Cinzel', serif; font-size: 18px; font-weight: 700; color: var(--text-dark); }
+        
+        .form-group { margin-bottom: 15px; text-align: left; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-light); margin-bottom: 5px; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+        .btn-submit { background: var(--primary); color: var(--gold-light); border: 1px solid var(--gold); padding: 12px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 14px; font-family: 'Cinzel', serif; }
+
+        .pending-list { display: flex; flex-direction: column; gap: 10px; }
+        .pending-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--bg-color); border-radius: 8px; border: 1px solid var(--border); }
+        .pending-item button { background: var(--accent); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <!-- =========================================
+         VIEW 1: TABLE DASHBOARD
+         ========================================= -->
+    <div id="dashboard-view" class="view active">
+        <div class="dash-header">
+            <a class="clickable-logo" onclick="openTableDashboard()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 19h16v2H4zM20 3H4v10c0 2.21-1.79 4-4 4h-6c-2.21 0-4-1.79-4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-2V5h2v3z"/>
+                </svg>
+                <h1>The Street Cafe</h1>
+            </a>
+            <div class="top-actions">
+                <div class="real-time-clock" id="real-time-clock">--:--:--</div>
+                <button class="action-btn btn-today" onclick="openTodayDataView()">📅 Current Day</button>
+                <button class="action-btn btn-staff-page" onclick="openStaffPageView()">🧑‍💼 Staff & Salary</button>
+                <button class="action-btn btn-orders-history" onclick="openOrdersHistoryView()">📜 Orders</button>
+                <button class="action-btn btn-analysis" onclick="openSalesAnalysisView()">📈 Intelligence</button>
+                <button class="action-btn btn-pending" onclick="openPendingOrders()">📋 Pending</button>
+                <button class="action-btn btn-edit" onclick="openEditMenu()">✏️ Edits</button>
+                <button class="action-btn btn-acc" onclick="openAccountsPageView()">📊 Accounts</button>
+            </div>
+        </div>
+
+        <div class="floor-plan">
+            <h2 class="floor-title">Downstairs Area (Tables 1 - 3)</h2>
+            <div class="table-grid" id="grid-downstairs"></div>
+
+            <h2 class="floor-title">Upstairs Area (Tables 4 - 8)</h2>
+            <div class="table-grid" id="grid-upstairs"></div>
+            
+            <h2 class="floor-title">Express & Delivery Queue</h2>
+            <div class="table-grid" id="grid-takeaway"></div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         VIEW 2: POS MENU & CART
+         ========================================= -->
+    <div id="pos-view" class="view">
+        <div class="pos-container">
+            <div class="categories-sidebar" id="category-filters"></div>
+
+            <div class="menu-section">
+                <div class="pos-header">
+                    <a class="clickable-logo" onclick="openTableDashboard()">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:35px;height:35px;">
+                            <path d="M4 19h16v2H4zM20 3H4v10c0 2.21-1.79 4-4 4h-6c-2.21 0-4-1.79-4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-2V5h2v3z"/>
+                        </svg>
+                        <h1 style="font-size:18px;">The Street Cafe</h1>
+                    </a>
+                    <div class="table-indicator" id="current-table-label">Table 1</div>
+                </div>
+
+                <div class="favorites-section">
+                    <div class="favorites-title">⚡ Concierge Favorites</div>
+                    <div class="favorites-grid">
+                        <button class="fav-chip" onclick="quickAddFavorite('Cold Coffee Regular', 70, '🥤')">🥤 Cold Coffee (₹70)</button>
+                        <button class="fav-chip" onclick="quickAddFavorite('Water Bottle', 20, '💧')">💧 Water Bottle (₹20)</button>
+                        <button class="fav-chip" onclick="quickAddFavorite('Hot Coffee', 20, '☕')">☕ Hot Coffee (₹20)</button>
+                    </div>
+                </div>
+
+                <div class="search-container">
+                    <input type="text" id="menu-search" class="search-input" placeholder="🔍 Search luxury selections..." oninput="handleSearch(this.value)">
+                </div>
+
+                <div class="menu-grid" id="menu-grid"></div>
+            </div>
+
+            <div class="cart-section">
+                <div class="cart-header">
+                    <div class="cart-header-top">
+                        <h2 style="font-family:'Cinzel',serif; font-size:16px; color:var(--primary);">Active Tab</h2>
+                        <button onclick="clearCurrentCart()" style="background:none; border:none; color:var(--text-light); cursor:pointer; text-decoration:underline; font-size:12px;">Clear All</button>
+                    </div>
+                    <div class="order-type-toggle">
+                        <button class="ot-btn active" id="ot-dine" onclick="setOrderType('Dine-in')">Dine-in</button>
+                        <button class="ot-btn" id="ot-takeaway" onclick="setOrderType('Takeaway')">Takeaway</button>
+                        <button class="ot-btn" id="ot-packed" onclick="setOrderType('Packed')">Packed</button>
+                    </div>
+                </div>
+                
+                <div class="cart-items" id="cart-items">
+                    <div style="text-align:center; margin-top:40px; color:var(--text-light); font-size:13px;">No items added yet.</div>
+                </div>
+
+                <div class="cart-footer">
+                    <div class="totals-row">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">₹0.00</span>
+                    </div>
+                    <div class="totals-row" id="discount-row" style="display: none; color: var(--discount-color);">
+                        <span>Privilege Discount:</span>
+                        <span id="discount-val">-₹0.00</span>
+                    </div>
+                    <div class="totals-row grand-total">
+                        <span>Total:</span>
+                        <span id="total">₹0.00</span>
+                    </div>
+                    <div class="cart-actions">
+                        <button class="save-btn" onclick="saveOrder()">Save Order</button>
+                        <button class="discount-btn" onclick="openDiscountModal()">Privilege Disc.</button>
+                        <button class="kot-btn" onclick="printKOT()">Print KOT</button>
+                        <button class="pay-btn" onclick="openPaymentModal()">Secure Payment</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         VIEW 3: SALES & REVENUE ANALYSIS DASHBOARD
+         ========================================= -->
+    <div id="analysis-view" class="view">
+        <div class="analysis-header">
+            <a class="clickable-logo" onclick="openTableDashboard()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:40px;height:40px;">
+                    <path d="M4 19h16v2H4zM20 3H4v10c0 2.21-1.79 4-4 4h-6c-2.21 0-4-1.79-4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-2V5h2v3z"/>
+                </svg>
+                <h1 style="font-size:22px;">Executive Intelligence</h1>
+            </a>
+            <button class="action-btn btn-acc" onclick="openTableDashboard()">← Back to Dashboard</button>
+        </div>
+
+        <div class="analysis-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="switchAnalysisTab('day', this)">Day</button>
+                    <button class="filter-tab" onclick="switchAnalysisTab('week', this)">Week</button>
+                    <button class="filter-tab" onclick="switchAnalysisTab('month', this)">Month</button>
+                    <button class="filter-tab" onclick="switchAnalysisTab('year', this)">Year</button>
+                </div>
+                <div class="date-range-box">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--text-light);">From:</label>
+                    <input type="date" id="analysis-start-date" onchange="onCustomDateRangeChange()">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--text-light);">To:</label>
+                    <input type="date" id="analysis-end-date" onchange="onCustomDateRangeChange()">
+                </div>
+                <div id="analysis-period-label" style="font-weight: 600; color: var(--secondary); font-size: 13px;">Analyzing Selected Range</div>
+            </div>
+
+            <div class="analysis-cards-grid">
+                <div class="ana-card">
+                    <h4>Total Gross Revenue</h4>
+                    <div class="value" id="ana-rev">₹0.00</div>
+                </div>
+                <div class="ana-card">
+                    <h4>Total Expenses Paid</h4>
+                    <div class="value" id="ana-exp" style="color: var(--expense-color);">₹0.00</div>
+                </div>
+                <div class="ana-card">
+                    <h4>Net Profit</h4>
+                    <div class="value" id="ana-net" style="color: var(--accent);">₹0.00</div>
+                </div>
+                <div class="ana-card">
+                    <h4>Total Orders Completed</h4>
+                    <div class="value" id="ana-orders">0</div>
+                </div>
+            </div>
+
+            <div class="ana-box">
+                <h3>📈 Sales Performance Curve</h3>
+                <div class="chart-svg-container">
+                    <svg class="chart-svg" id="sales-curve-svg" viewBox="0 0 500 150" preserveAspectRatio="none"></svg>
+                    <div class="chart-axis-labels" id="chart-axis-labels"></div>
+                </div>
+            </div>
+
+            <div class="analysis-split-grid">
+                <div class="ana-box">
+                    <h3>🏆 Item Performance Breakdown</h3>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Item Name</th>
+                                    <th>Category</th>
+                                    <th>Qty Sold</th>
+                                    <th>Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="item-performance-tbody">
+                                <tr><td colspan="4" style="text-align:center; color:var(--text-light);">No data recorded yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="ana-box">
+                    <h3>📅 Complete Daily Revenue & Expense Log</h3>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Revenue</th>
+                                    <th>Expenses</th>
+                                    <th>Net</th>
+                                </tr>
+                            </thead>
+                            <tbody id="daily-ledger-tbody">
+                                <tr><td colspan="4" style="text-align:center; color:var(--text-light);">No daily logs yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         VIEW 4: COMPLETE ORDERS HISTORY
+         ========================================= -->
+    <div id="history-view" class="view">
+        <div class="analysis-header">
+            <a class="clickable-logo" onclick="openTableDashboard()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:40px;height:40px;">
+                    <path d="M4 19h16v2H4zM20 3H4v10c0 2.21-1.79 4-4 4h-6c-2.21 0-4-1.79-4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-2V5h2v3z"/>
+                </svg>
+                <h1 style="font-size:22px;">Master Orders Archive</h1>
+            </a>
+            <button class="action-btn btn-acc" onclick="openTableDashboard()">← Back to Dashboard</button>
+        </div>
+
+        <div class="history-container">
+            <div class="ana-box">
+                <h3>📜 All Recorded Orders Till Date</h3>
+                <div style="max-height: 500px; overflow-y: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Table / Source</th>
+                                <th>Order Type</th>
+                                <th>Items Ordered</th>
+                                <th>Payment / Status</th>
+                                <th>Total (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-history-tbody">
+                            <tr><td colspan="6" style="text-align:center; color:var(--text-light);">No orders history found.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         VIEW 5: FULL DEDICATED ACCOUNTS & KHATA PAGE
+         ========================================= -->
+    <div id="accounts-page-view" class="view">
+        <div class="analysis-header">
+            <a class="clickable-logo" onclick="openTableDashboard()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:40px;height:40px;">
+                    <path d="M4 19h16v2H4zM20 3H4v10c0 2.21-1.79 4-4 4h-6c-2.21 0-4-1.79-4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-2V5h2v3z"/>
+                </svg>
+                <h1 style="font-size:22px;">Executive Accounts & Inventory Importer</h1>
+            </a>
+            <button class="action-btn btn-acc" onclick="openTableDashboard()">← Back to Dashboard</button>
+        </div>
+
+        <div class="accounts-container">
+            <div class="dashboard-grid">
+                <div class="stat-card" style="grid-column: span 3; display: flex; justify-content: space-between; align-items: center; border-color: var(--gold);">
+                    <div>
+                        <h4 style="color: var(--primary);">Net Profit (Gross - Expenses - Staff Payouts)</h4>
+                        <div class="val" id="full-stat-profit" style="color: var(--primary); font-size: 26px;">₹0.00</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <h4>Total Orders</h4>
+                        <div class="val" id="full-stat-orders">0</div>
+                    </div>
+                </div>
+
+                <div class="stat-card" style="border-left: 4px solid var(--cash-color);">
+                    <h4>Total Cash</h4>
+                    <div class="val" id="full-stat-cash">₹0.00</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid var(--upi-color);">
+                    <h4>Total UPI</h4>
+                    <div class="val" id="full-stat-upi">₹0.00</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid var(--lended-color);">
+                    <h4>Lended (Total Due)</h4>
+                    <div class="val" id="full-stat-lended">₹0.00</div>
+                </div>
+                
+                <div class="stat-card" style="border-left: 4px solid var(--accent);">
+                    <h4>Gross Sales</h4>
+                    <div class="val" id="full-stat-sales">₹0.00</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid var(--expense-color);">
+                    <h4>Expenses Paid</h4>
+                    <div class="val" id="full-stat-expenses" style="color: var(--expense-color);">-₹0.00</div>
+                </div>
+                <div class="stat-card" style="border-left: 4px solid var(--staff-color);">
+                    <h4>Staff Payouts</h4>
+                    <div class="val" id="full-stat-staff" style="color: var(--staff-color);">-₹0.00</div>
+                </div>
+            </div>
+
+            <!-- PDF / Excel Inventory Importer Section inside Accounts -->
+            <div class="ana-box" style="border: 2px dashed var(--gold); background: #FFFDF9;">
+                <h3 style="color: var(--primary);">📁 Import Inventory via PDF or Excel / CSV Sheet</h3>
+                <p style="font-size: 13px; color: var(--text-light); margin-bottom: 12px;">
+                    Upload or paste CSV data from your inventory spreadsheet (Format: <code>Category, ItemName, Price, Emoji/Icon</code>). The POS will automatically update and add them to the live inventory.
+                </p>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                    <input type="file" id="inventory-file-input" accept=".csv,.txt" style="padding: 8px; border: 1px solid var(--border); border-radius: 6px; background: white; font-size: 13px;" onchange="handleInventoryFileUpload(event)">
+                    <button class="action-btn btn-today" onclick="openModal('paste-inventory-modal')">📋 Paste Spreadsheet Data</button>
+                </div>
+            </div>
+
+            <div class="khata-action-bar">
+                <button class="action-btn btn-orders-history" onclick="openModal('manual-lended-modal')">➕ Add Manual Khata Entry</button>
+                <button class="action-btn btn-edit" onclick="openModal('manual-expense-modal')">💸 Add Expense</button>
+            </div>
+
+            <div class="analysis-split-grid">
+                <div class="ana-box" style="grid-column: span 2;">
+                    <h3>👥 Patron Credit (Khata) Accounts</h3>
+                    <div style="max-height: 350px; overflow-y: auto;">
+                        <table class="data-table" style="margin-top:0;">
+                            <thead>
+                                <tr>
+                                    <th>Patron Name</th>
+                                    <th>Phone</th>
+                                    <th>Due (₹)</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="full-khata-tbody">
+                                <tr><td colspan="4" style="text-align:center; color:var(--text-light);">No active credit tabs.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         VIEW 6: CURRENT DAY DATA SECTION
+         ========================================= -->
+    <div id="today-view" class="view">
+        <div class="analysis-header">
+            <a class="clickable-logo" onclick="openTableDashboard()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:40px;height:40px;">
+                    <path d="M4 19h16v2H4zM20 3H4v10c0 2.21-1.79 4-4 4h-6c-2.21 0-4-1.79-4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-2V5h2v3z"/>
+                </svg>
+                <h1 style="font-size:22px;">Current Day Operations</h1>
+            </a>
+            <button class="action-btn btn-acc" onclick="openTableDashboard()">← Back to Dashboard</button>
+        </div>
+
+        <div class="today-container">
+            <div class="analysis-cards-grid">
+                <div class="ana-card">
+                    <h4>Today's Revenue</h4>
+                    <div class="value" id="today-rev">₹0.00</div>
+                </div>
+                <div class="ana-card">
+                    <h4>Today's Expenses</h4>
+                    <div class="value" id="today-exp" style="color: var(--expense-color);">₹0.00</div>
+                </div>
+                <div class="ana-card">
+                    <h4>Today's Orders</h4>
+                    <div class="value" id="today-orders">0</div>
+                </div>
+                <div class="ana-card">
+                    <h4>Today's Staff Leaves</h4>
+                    <div class="value" id="today-leaves" style="color: var(--leave-color);">0</div>
+                </div>
+            </div>
+
+            <div class="analysis-split-grid">
+                <div class="ana-box">
+                    <h3>📜 Today's Completed Orders</h3>
+                    <div style="max-height: 350px; overflow-y: auto;">
+                        <table class="data-table" style="margin-top:0;">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Table / Source</th>
+                                    <th>Items</th>
+                                    <th>Total (₹)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="today-orders-tbody">
+                                <tr><td colspan="4" style="text-align:center; color:var(--text-light);">No orders completed today yet.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="ana-box">
+                    <h3>🏖️ Today's Staff Leave & Payout Log</h3>
+                    <div style="max-height: 350px; overflow-y: auto;">
+                        <table class="data-table" style="margin-top:0;">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Staff Name</th>
+                                    <th>Record Type</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody id="today-staff-tbody">
+                                <tr><td colspan="4" style="text-align:center; color:var(--text-light);">No staff records for today.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         VIEW 7: DEDICATED STAFF & SALARY MANAGEMENT PAGE
+         ========================================= -->
+    <div id="staff-page-view" class="view">
+        <div class="analysis-header">
+            <a class="clickable-logo" onclick="openTableDashboard()">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:40px;height:40px;">
+                    <path d="M4 19h16v2H4zM20 3H4v10c0 2.21-1.79 4-4 4h-6c-2.21 0-4-1.79-4-4v-3h2c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 5h-2V5h2v3z"/>
+                </svg>
+                <h1 style="font-size:22px;">Staff Directory & Monthly Salary Command</h1>
+            </a>
+            <button class="action-btn btn-acc" onclick="openTableDashboard()">← Back to Dashboard</button>
+        </div>
+
+        <div class="staff-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                <div class="filter-tabs">
+                    <button class="action-btn btn-today" onclick="openModal('add-staff-modal')">➕ Add New Staff Member</button>
+                    <button class="action-btn btn-orders-history" onclick="openModal('staff-payout-modal')">💸 Give Advance / Payout</button>
+                    <button class="action-btn btn-pending" onclick="openModal('staff-leave-modal')">🏖️ Record Leave / Half-Day</button>
+                </div>
+                <div class="date-range-box">
+                    <label style="font-size: 13px; font-weight: 600; color: var(--text-light);">Select Month:</label>
+                    <input type="month" id="staff-month-picker" onchange="renderStaffPage()">
+                </div>
+            </div>
+
+            <div class="ana-box">
+                <h3>👥 Staff Roster & Monthly Net Payroll Ledger</h3>
+                <div style="overflow-x: auto;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Staff Name</th>
+                                <th>Role</th>
+                                <th>Base Salary (₹)</th>
+                                <th>Advances Taken (₹)</th>
+                                <th>Leaves / Half-Days Deducted (₹)</th>
+                                <th>Manual Adj. (+/-) (₹)</th>
+                                <th>Net Payable (₹)</th>
+                                <th>Payment Term</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-roster-tbody">
+                            <tr><td colspan="9" style="text-align:center; color:var(--text-light);">No staff members added yet.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="ana-box">
+                <h3>📜 Detailed Staff Activity Ledger (Advances, Payouts & Leaves)</h3>
+                <div style="max-height: 300px; overflow-y: auto;">
+                    <table class="data-table" style="margin-top:0;">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Staff Name</th>
+                                <th>Action Type</th>
+                                <th>Details / Note</th>
+                                <th>Amount Impact (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-activity-tbody">
+                            <tr><td colspan="5" style="text-align:center; color:var(--text-light);">No activity records for this month.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================
+         MODALS
+         ========================================= -->
+
+    <!-- Paste Inventory Modal -->
+    <div class="modal-overlay" id="paste-inventory-modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="close-modal" onclick="closeModal('paste-inventory-modal')">&times;</button>
+            <h2 class="modal-title">Paste Spreadsheet / CSV Data</h2>
+            <p style="font-size: 12px; color: var(--text-light); margin-bottom: 10px;">Paste rows in format: <br><code>Category, ItemName, Price, Emoji/Icon</code> (one per line)</p>
+            <div class="form-group">
+                <textarea id="pasted-inventory-data" rows="8" placeholder="Momos, Paneer Kurkure Momo, 120, 🥟&#10;Shakes, Cold Coffee, 80, 🥤" style="width:100%; padding:10px; border:1px solid var(--border); border-radius:6px; font-family:monospace; font-size:12px;"></textarea>
+            </div>
+            <button class="btn-submit" onclick="processPastedInventory()">Process & Update Inventory</button>
+        </div>
+    </div>
+
+    <!-- Add New Staff Modal -->
+    <div class="modal-overlay" id="add-staff-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('add-staff-modal')">&times;</button>
+            <h2 class="modal-title">Add Staff Member</h2>
+            <div class="form-group"><label>Staff Name</label><input type="text" id="new-staff-name" placeholder="e.g. Ramesh Kumar"></div>
+            <div class="form-group"><label>Role / Designation</label><input type="text" id="new-staff-role" placeholder="e.g. Master Chef / Waiter"></div>
+            <div class="form-group"><label>Monthly Base Salary (₹)</label><input type="number" id="new-staff-salary" placeholder="e.g. 12000" min="0" step="100"></div>
+            <div class="form-group">
+                <label>Payment Term</label>
+                <select id="new-staff-term">
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                </select>
+            </div>
+            <button class="btn-submit" onclick="submitNewStaff()">Register Staff</button>
+        </div>
+    </div>
+
+    <!-- Staff Advance Payout Modal -->
+    <div class="modal-overlay" id="staff-payout-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('staff-payout-modal')">&times;</button>
+            <h2 class="modal-title">Give Advance / Payout</h2>
+            <div class="form-group">
+                <label>Select Staff Member</label>
+                <select id="payout-staff-select"></select>
+            </div>
+            <div class="form-group"><label>Amount Given (₹)</label><input type="number" id="payout-staff-amt" placeholder="e.g. 1000" min="1"></div>
+            <div class="form-group"><label>Note / Purpose</label><input type="text" id="payout-staff-note" placeholder="e.g. Festival Advance"></div>
+            <button class="btn-submit" onclick="submitStaffPayout()">Record Advance & Deduct</button>
+        </div>
+    </div>
+
+    <!-- Staff Leave & Half-Day Modal -->
+    <div class="modal-overlay" id="staff-leave-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('staff-leave-modal')">&times;</button>
+            <h2 class="modal-title">Record Leave / Half-Day</h2>
+            <div class="form-group">
+                <label>Select Staff Member</label>
+                <select id="leave-staff-select"></select>
+            </div>
+            <div class="form-group"><label>Date</label><input type="date" id="staff-leave-date"></div>
+            <div class="form-group">
+                <label>Leave Type</label>
+                <select id="staff-leave-type">
+                    <option value="full">Full Day Leave (Deduct Full Daily Salary)</option>
+                    <option value="half">Half Day Leave (Deduct Half Daily Salary)</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Reason / Note</label><input type="text" id="staff-leave-note" placeholder="e.g. Personal work"></div>
+            <button class="btn-submit" onclick="submitStaffLeaveRecord()">Record Leave & Deduct</button>
+        </div>
+    </div>
+
+    <!-- Manual Adjustment Modal -->
+    <div class="modal-overlay" id="staff-adjust-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('staff-adjust-modal')">&times;</button>
+            <h2 class="modal-title">Manual Salary Adjustment</h2>
+            <p style="font-size: 14px; color: var(--text-light); margin-bottom: 15px;">Staff: <strong id="adjust-staff-name"></strong></p>
+            <div class="form-group">
+                <label>Adjustment Type</label>
+                <select id="adjust-type">
+                    <option value="plus">Add Bonus / Incentive (+)</option>
+                    <option value="minus">Deduct Fine / Penalty (-)</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Amount (₹)</label><input type="number" id="adjust-amt" placeholder="e.g. 200" min="1"></div>
+            <div class="form-group"><label>Reason / Note</label><input type="text" id="adjust-note" placeholder="e.g. Excellent Service Bonus"></div>
+            <button class="btn-submit" onclick="submitStaffAdjustment()">Apply Adjustment</button>
+        </div>
+    </div>
+
+    <!-- Manual Khata Entry Modal -->
+    <div class="modal-overlay" id="manual-lended-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('manual-lended-modal')">&times;</button>
+            <h2 class="modal-title">Manually Add Khata Entry</h2>
+            <div class="form-group"><label>Patron Name</label><input type="text" id="man-lended-name" placeholder="e.g. Aman Verma"></div>
+            <div class="form-group"><label>Mobile Number</label><input type="text" id="man-lended-phone" placeholder="e.g. 9876543210"></div>
+            <div class="form-group"><label>Amount to Lend (₹)</label><input type="number" id="man-lended-amt" placeholder="e.g. 250" min="1"></div>
+            <div class="form-group"><label>Description / Note</label><input type="text" id="man-lended-desc" placeholder="e.g. Evening Snacks Tab"></div>
+            <button class="btn-submit" onclick="submitManualLended()">Add to Khata</button>
+        </div>
+    </div>
+
+    <!-- Manual Expense Modal -->
+    <div class="modal-overlay" id="manual-expense-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('manual-expense-modal')">&times;</button>
+            <h2 class="modal-title">Record Business Expense</h2>
+            <div class="form-group"><label>Description</label><input type="text" id="man-exp-desc" placeholder="e.g. Milk & Veggies"></div>
+            <div class="form-group"><label>Amount (₹)</label><input type="number" id="man-exp-amt" placeholder="e.g. 350" min="1"></div>
+            <button class="btn-submit" onclick="submitManualExpense()">Record Expense</button>
+        </div>
+    </div>
+
+    <!-- Khata Adjustment & Settlement Modal -->
+    <div class="modal-overlay" id="settle-khata-modal">
+        <div class="modal-content" style="max-width: 420px; text-align: center;">
+            <button class="close-modal" onclick="closeModal('settle-khata-modal')">&times;</button>
+            <h2 class="modal-title">Manage Patron Khata Tab</h2>
+            <p style="font-size: 14px; color: var(--text-light); margin-bottom: 5px;">Patron: <strong id="settle-patron-name"></strong></p>
+            <p style="font-size: 15px; color: var(--primary); margin-bottom: 20px;">Current Outstanding Due: <strong id="settle-patron-due">₹0.00</strong></p>
+            
+            <div class="form-group" style="text-align: left;">
+                <label>Action Amount (₹)</label>
+                <input type="number" id="settle-input-val" placeholder="Enter amount to add, subtract, or settle" min="0.5" step="0.5">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                <button class="btn-submit" style="background: var(--cash-color);" onclick="executeKhataAction('add')">➕ Add (Manual Lend)</button>
+                <button class="btn-submit" style="background: var(--accent);" onclick="executeKhataAction('collect')">💰 Collect / Settle</button>
+                <button class="btn-submit" style="background: var(--expense-color);" onclick="executeKhataAction('minus')">➖ Reduce / Minus</button>
+                <button class="btn-submit" style="background: var(--primary);" onclick="executeKhataAction('full')">✅ Full Settle</button>
+            </div>
+            <button class="btn-submit" style="background: #FF4D4F; margin-top: 12px;" onclick="removeKhataTabCompletely()">🗑️ Remove / Clear Tab Completely</button>
+        </div>
+    </div>
+
+    <!-- Discount Modal -->
+    <div class="modal-overlay" id="discount-modal">
+        <div class="modal-content" style="max-width: 380px; text-align: center;">
+            <button class="close-modal" onclick="closeModal('discount-modal')">&times;</button>
+            <h2 class="modal-title">Privilege Discount</h2>
+            <div class="form-group"><label>Discount Type</label><select id="discount-type"><option value="flat">Flat Amount (₹)</option><option value="percentage">Percentage (%)</option></select></div>
+            <div class="form-group"><label>Discount Value</label><input type="number" id="discount-input-val" placeholder="e.g. 50 or 10" min="0" step="0.5"></div>
+            <button class="btn-submit" onclick="applyDiscount()">Apply Privilege</button>
+        </div>
+    </div>
+
+    <!-- Lended Customer Details Modal -->
+    <div class="modal-overlay" id="lended-customer-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="close-modal" onclick="closeModal('lended-customer-modal')">&times;</button>
+            <h2 class="modal-title">Khata / Credit Account</h2>
+            <div class="form-group"><label>Patron Name</label><input type="text" id="lended-name" placeholder="e.g. Rahul Sharma"></div>
+            <div class="form-group"><label>Mobile Number</label><input type="text" id="lended-phone" placeholder="e.g. 9876543210"></div>
+            <button class="btn-submit" onclick="confirmLendedPayment()">Confirm Credit Tab</button>
+        </div>
+    </div>
+
+    <!-- Edit Menu Modal -->
+    <div class="modal-overlay" id="edit-menu-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="close-modal" onclick="closeModal('edit-menu-modal')">&times;</button>
+            <h2 class="modal-title">Concierge Menu Editor</h2>
+            <div class="form-group"><label>Category</label><input type="text" id="edit-category" placeholder="e.g., Patties, Momos, Wraps" list="cat-list"><datalist id="cat-list"></datalist></div>
+            <div class="form-group"><label>Item Name</label><input type="text" id="edit-name" placeholder="e.g., Veg Patties"></div>
+            <div class="form-group"><label>Price (₹)</label><input type="number" id="edit-price" placeholder="e.g., 40"></div>
+            <div class="form-group">
+                <label>Item Icon / Image (Select Emoji or Add URL)</label>
+                <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                    <select id="emoji-selector" style="flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 6px;" onchange="document.getElementById('edit-img').value = this.value;">
+                        <option value="🍽️">Select Emoji 🍽️</option>
+                        <option value="🥟">🥟 Momo</option>
+                        <option value="🌯">🌯 Wrap</option>
+                        <option value="🥠">🥠 Patties</option>
+                        <option value="🍞">🍞 Garlic Bread</option>
+                        <option value="🥤">🥤 Shake</option>
+                        <option value="🍕">🍕 Pizza</option>
+                        <option value="🥪">🥪 Sandwich</option>
+                        <option value="🍔">🍔 Burger</option>
+                        <option value="🍟">🍟 Fries</option>
+                        <option value="🍝">🍝 Pasta</option>
+                        <option value="🍜">🍜 Noodles</option>
+                        <option value="🍚">🍚 Rice</option>
+                        <option value="☕">☕ Coffee</option>
+                        <option value="🍹">🍹 Cooler</option>
+                    </select>
+                </div>
+                <input type="text" id="edit-img" placeholder="Or paste image URL / Emoji directly">
+            </div>
+            <button class="btn-submit" onclick="saveNewMenuItem()">Save Selection</button>
+        </div>
+    </div>
+
+    <!-- Pending Orders Modal -->
+    <div class="modal-overlay" id="pending-modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('pending-modal')">&times;</button>
+            <h2 class="modal-title">Active Service Tabs</h2>
+            <div class="pending-list" id="pending-list-container"></div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal-overlay" id="payment-modal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <button class="close-modal" onclick="closeModal('payment-modal')">&times;</button>
+            <h2 class="modal-title">Secure Settlement <span id="checkout-table"></span></h2>
+            <h1 id="payment-amount-display" style="margin: 15px 0; font-family:'Cinzel',serif; color:var(--primary);">₹0.00</h1>
+            
+            <div class="payment-methods">
+                <div class="payment-row">
+                    <button class="btn-pay btn-cash" onclick="openCashModal()">CASH</button>
+                    <button class="btn-pay btn-upi" onclick="processPayment('UPI')">UPI</button>
+                </div>
+                <button class="btn-pay btn-lended" onclick="openLendedCustomerModal()">LENDED (Khata / Tab)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cash Given & Change Modal -->
+    <div class="modal-overlay" id="cash-modal">
+        <div class="modal-content" style="max-width: 380px; text-align: center;">
+            <button class="close-modal" onclick="closeModal('cash-modal')">&times;</button>
+            <h2 class="modal-title">Cash Calculation</h2>
+            <p style="font-size: 14px; color: var(--text-light); margin-bottom: 10px;">Total Bill Amount: <strong id="cash-bill-amt">₹0.00</strong></p>
+            <div class="form-group">
+                <label>Amount Given by Customer (₹) [Optional]</label>
+                <input type="number" id="cash-given-input" placeholder="e.g. 500 (Leave blank if exact)" min="0" step="1" oninput="calculateChange()">
+            </div>
+            <div id="change-display-box" style="background: var(--bg-color); padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid var(--border); display: none;">
+                <span style="font-size: 13px; color: var(--text-light);">Change to Return:</span>
+                <div id="change-amount-val" style="font-family:'Cinzel',serif; font-size: 22px; font-weight: 700; color: var(--accent);">₹0.00</div>
+            </div>
+            <button class="btn-submit" onclick="finalizeCashPayment()">Complete Cash Payment</button>
+        </div>
+    </div>
+
+<script>
+    const defaultMenuItems = [
+        { id: 301, name: "Veg Patties", price: 40, category: "Patties", img: "🥠" },
+        { id: 302, name: "Cheese Patties", price: 60, category: "Patties", img: "🥠" },
+        { id: 303, name: "Mayo Patties", price: 50, category: "Patties", img: "🥠" },
+        { id: 306, name: "Garlic Bread", price: 80, category: "Sides", img: "🍞" },
+        { id: 304, name: "Blueberry Shake", price: 120, category: "Shakes", img: "🥤" },
+        { id: 305, name: "Brownie Shake", price: 150, category: "Shakes", img: "🥤" },
+        { id: 63, name: "Vanilla Shake", price: 90, category: "Shakes", img: "🥤" },
+        { id: 64, name: "Chocolate Shake", price: 90, category: "Shakes", img: "🥤" },
+        { id: 65, name: "Strawberry Shake", price: 90, category: "Shakes", img: "🥤" },
+        { id: 60, name: "Spring Rolls", price: 100, category: "Sides", img: "🥟" },
+        { id: 61, name: "Dosa Cigar", price: 100, category: "Sides", img: "🥟" },
+        { id: 62, name: "Jamun Shot", price: 30, category: "Sides", img: "🍸" },
+        { id: 201, name: "Steam Veg Momo", price: 80, category: "Momos", img: "🥟" },
+        { id: 202, name: "Steam Paneer Momo", price: 90, category: "Momos", img: "🥟" },
+        { id: 203, name: "Steam Cheese & Corn", price: 100, category: "Momos", img: "🥟" },
+        { id: 204, name: "Veg Fry Momo", price: 90, category: "Momos", img: "🥟" },
+        { id: 205, name: "Paneer Fry Momo", price: 100, category: "Momos", img: "🥟" },
+        { id: 206, name: "Cheese Corn Fry Momo", price: 110, category: "Momos", img: "🥟" },
+        { id: 207, name: "Veg Kurkure Momo", price: 110, category: "Momos", img: "🥟" },
+        { id: 208, name: "Paneer Kurkure Momo", price: 120, category: "Momos", img: "🥟" },
+        { id: 209, name: "Cheese Corn Kurkure", price: 140, category: "Momos", img: "🥟" },
+        { id: 101, name: "Aloo Tikki Wrap", price: 80, category: "Wraps", img: "🌯" },
+        { id: 102, name: "Tandoori Paneer Wrap", price: 100, category: "Wraps", img: "🌯" },
+        { id: 103, name: "Cold Coffee Regular", price: 70, category: "Coffee", img: "🥤" },
+        { id: 104, name: "Water Bottle", price: 20, category: "Sides", img: "💧" },
+        { id: 105, name: "Hot Coffee", price: 20, category: "Coffee", img: "☕" },
+        { id: 1, name: "Margherita", price: 100, category: "Pizza", img: "🍕" },
+        { id: 2, name: "OTC Pizza", price: 140, category: "Pizza", img: "🍕" },
+        { id: 3, name: "Golden Corn Pizza", price: 140, category: "Pizza", img: "🍕" },
+        { id: 4, name: "Tandoori Paneer", price: 160, category: "Pizza", img: "🍕" },
+        { id: 5, name: "Corn and Paneer", price: 160, category: "Pizza", img: "🍕" },
+        { id: 6, name: "Farm House Pizza", price: 180, category: "Pizza", img: "🍕" },
+        { id: 7, name: "Veg Loaded", price: 100, category: "Sandwizza", img: "🥪" },
+        { id: 8, name: "Golden Corn", price: 110, category: "Sandwizza", img: "🥪" },
+        { id: 9, name: "Onion Tomato Cap", price: 120, category: "Sandwizza", img: "🥪" },
+        { id: 10, name: "Tandoori Paneer", price: 130, category: "Sandwizza", img: "🥪" },
+        { id: 11, name: "Corn Paneer & Cheese", price: 130, category: "Sandwizza", img: "🥪" },
+        { id: 12, name: "Cheese Overloaded", price: 150, category: "Sandwizza", img: "🥪" },
+        { id: 13, name: "Masala Lemonade", price: 60, category: "Coolers", img: "🍹" },
+        { id: 14, name: "Masala cola", price: 60, category: "Coolers", img: "🍹" },
+        { id: 15, name: "Bombay Sandwich", price: 60, category: "Sandwich", img: "🥪" },
+        { id: 16, name: "Masala Sandwich", price: 70, category: "Sandwich", img: "🥪" },
+        { id: 17, name: "Veg Sandwich", price: 70, category: "Sandwich", img: "🥪" },
+        { id: 18, name: "Cheese Chutney", price: 80, category: "Sandwich", img: "🥪" },
+        { id: 19, name: "Tandoori Paneer", price: 100, category: "Sandwich", img: "🥪" },
+        { id: 20, name: "Cheese & Corn", price: 100, category: "Sandwich", img: "🥪" },
+        { id: 21, name: "Jambo (3 Layer)", price: 130, category: "Sandwich", img: "🥪" },
+        { id: 22, name: "Tsc special (3Layer)", price: 150, category: "Sandwich", img: "🥪" },
+        { id: 23, name: "Regular fries (Salted)", price: 90, category: "Fries", img: "🍟" },
+        { id: 24, name: "Peri Peri Fries", price: 100, category: "Fries", img: "🍟" },
+        { id: 25, name: "Creamy Temptation Fries", price: 130, category: "Fries", img: "🍟" },
+        { id: 26, name: "White Sauce Pasta", price: 150, category: "Pasta", img: "🍝" },
+        { id: 27, name: "Red Sauce Pasta", price: 140, category: "Pasta", img: "🍝" },
+        { id: 28, name: "Veg Roll", price: 60, category: "Rolls/Wraps", img: "🌯" },
+        { id: 29, name: "Paneer Roll", price: 80, category: "Rolls/Wraps", img: "🌯" },
+        { id: 30, name: "Paneer Cheese Roll", price: 100, category: "Rolls/Wraps", img: "🌯" },
+        { id: 31, name: "Manchurian (Gravy)", price: 90, category: "Chinese", img: "🥡" },
+        { id: 32, name: "Manchurian (Semi Gravy)", price: 100, category: "Chinese", img: "🥡" },
+        { id: 33, name: "Crispy Corn", price: 100, category: "Chinese", img: "🥡" },
+        { id: 34, name: "Chilli Paneer", price: 150, category: "Chinese", img: "🥡" },
+        { id: 35, name: "Chinese Bhel", price: 100, category: "Chinese", img: "🥡" },
+        { id: 36, name: "Honey Chilli Potato", price: 120, category: "Chinese", img: "🥡" },
+        { id: 37, name: "Chilli Potato", price: 100, category: "Chinese", img: "🥡" },
+        { id: 38, name: "Hakka Noodles", price: 100, category: "Noodles", img: "🍜" },
+        { id: 39, name: "Veg Chowmin", price: 90, category: "Noodles", img: "🍜" },
+        { id: 40, name: "Chilli Garlic Chowmin", price: 120, category: "Noodles", img: "🍜" },
+        { id: 41, name: "Veg Noodles w/ Manchurian", price: 120, category: "Noodles", img: "🍜" },
+        { id: 42, name: "Paneer Cheese Chowmin", price: 150, category: "Noodles", img: "🍜" },
+        { id: 43, name: "Fried Rice", price: 90, category: "Rice", img: "🍚" },
+        { id: 44, name: "Fried Rice Manchurian", price: 120, category: "Rice", img: "🍚" },
+        { id: 45, name: "Paneer sweetcorn Rice", price: 150, category: "Rice", img: "🍚" },
+        { id: 46, name: "Bombay Vada Pav", price: 50, category: "Vada Pav", img: "🍔" },
+        { id: 47, name: "Cheese Vada Pav", price: 70, category: "Vada Pav", img: "🍔" },
+        { id: 48, name: "Masala Maggi", price: 50, category: "Maggi", img: "🍜" },
+        { id: 49, name: "Veg Masala Maggi", price: 70, category: "Maggi", img: "🍜" },
+        { id: 50, name: "Cheese Maggi", price: 80, category: "Maggi", img: "🍜" },
+        { id: 51, name: "Peri Peri Maggi", price: 80, category: "Maggi", img: "🍜" },
+        { id: 52, name: "Shezwan Maggi", price: 90, category: "Maggi", img: "🍜" },
+        { id: 53, name: "Corn & Cheese Maggi", price: 100, category: "Maggi", img: "🍜" },
+        { id: 54, name: "Aloo Tikki", price: 50, category: "Burger", img: "🍔" },
+        { id: 55, name: "Veg Burger", price: 80, category: "Burger", img: "🍔" },
+        { id: 56, name: "Veg Cheese Burger", price: 90, category: "Burger", img: "🍔" },
+        { id: 57, name: "Tandoori Paneer Burger", price: 90, category: "Burger", img: "🍔" },
+        { id: 58, name: "Double Decker Burger", price: 120, category: "Burger", img: "🍔" },
+        { id: 59, name: "Tsc Special", price: 80, category: "Burger", img: "🍔" },
+        { id: 66, name: "Paan Fresh", price: 100, category: "Shakes", img: "🥤" },
+        { id: 67, name: "Matka Kulfi Shake", price: 100, category: "Shakes", img: "🥤" },
+        { id: 68, name: "Rose Rabri Shake", price: 100, category: "Shakes", img: "🥤" },
+        { id: 69, name: "Kitkat shake", price: 100, category: "Shakes", img: "🥤" },
+        { id: 70, name: "Choco Oreo Shake", price: 100, category: "Shakes", img: "🥤" },
+        { id: 71, name: "Rasmalai Shake", price: 110, category: "Shakes", img: "🥤" },
+        { id: 72, name: "Virgin wave", price: 90, category: "Mojito", img: "🍹" },
+        { id: 73, name: "Cool Cucumber", price: 90, category: "Mojito", img: "🍹" },
+        { id: 74, name: "Watermelon", price: 100, category: "Mojito", img: "🍹" },
+        { id: 75, name: "Blue Lagoon", price: 100, category: "Mojito", img: "🍹" },
+        { id: 76, name: "Green Apple", price: 100, category: "Mojito", img: "🍹" },
+        { id: 77, name: "Blue Berry", price: 100, category: "Mojito", img: "🍹" },
+        { id: 78, name: "Cappuccino", price: 40, category: "Coffee", img: "☕" },
+        { id: 79, name: "Hot Chocolate coffee", price: 40, category: "Coffee", img: "☕" },
+        { id: 80, name: "Black Coffee", price: 40, category: "Coffee", img: "☕" },
+        { id: 81, name: "Cold Coffee Mini", price: 50, category: "Coffee", img: "🥤" }
+    ];
+
+    let menuItems = JSON.parse(localStorage.getItem('tsc_menu_items')) || defaultMenuItems;
+
+    const tables = {};
+    for (let i = 1; i <= 12; i++) {
+        let tName = `Table ${i}`;
+        let type = 'Dine-in';
+        if (i > 8) { tName = `Order Q-${i-8}`; type = 'Takeaway'; }
+        tables[i] = { id: i, name: tName, defaultType: type, currentType: type, cart: [], isOccupied: false, discount: 0, discountType: 'flat' };
+    }
+    
+    let activeTableId = null;
+    let currentCategoryFilter = 'All';
+    let searchQuery = '';
+    let autoIdCounter = 400;
+
+    let metrics = JSON.parse(localStorage.getItem('tsc_metrics')) || { sales: 0, orders: 0, cash: 0, upi: 0, lended: 0, expenses: 0, staffPayouts: 0 };
+    let itemSalesLedger = JSON.parse(localStorage.getItem('tsc_item_ledger')) || {}; 
+    let dailyLedgerMap = JSON.parse(localStorage.getItem('tsc_daily_ledger')) || {}; 
+    let ordersHistory = JSON.parse(localStorage.getItem('tsc_orders_history')) || [];
+    let lendedCustomers = JSON.parse(localStorage.getItem('tsc_lended_customers')) || {};
+    let staffList = JSON.parse(localStorage.getItem('tsc_staff_list')) || []; // { id, name, role, baseSalary, paymentTerm, transactions: [] }
+
+    function init() {
+        renderTables();
+        renderCategories();
+        renderMenu();
+        startRealTimeClock();
+        recordDailyLedger();
+        
+        const todayStr = getTodayKey();
+        const startPicker = document.getElementById('analysis-start-date');
+        const endPicker = document.getElementById('analysis-end-date');
+        if(startPicker) startPicker.value = todayStr;
+        if(endPicker) endPicker.value = todayStr;
+
+        const staffMonthPicker = document.getElementById('staff-month-picker');
+        if(staffMonthPicker) staffMonthPicker.value = todayStr.slice(0, 7);
+        const leaveDateInput = document.getElementById('leave-date');
+        if(leaveDateInput) leaveDateInput.value = todayStr;
+    }
+
+    function persistData() {
+        localStorage.setItem('tsc_menu_items', JSON.stringify(menuItems));
+        localStorage.setItem('tsc_metrics', JSON.stringify(metrics));
+        localStorage.setItem('tsc_item_ledger', JSON.stringify(itemSalesLedger));
+        localStorage.setItem('tsc_daily_ledger', JSON.stringify(dailyLedgerMap));
+        localStorage.setItem('tsc_orders_history', JSON.stringify(ordersHistory));
+        localStorage.setItem('tsc_lended_customers', JSON.stringify(lendedCustomers));
+        localStorage.setItem('tsc_staff_list', JSON.stringify(staffList));
+    }
+
+    function startRealTimeClock() {
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const clockEl = document.getElementById('real-time-clock');
+            if(clockEl) clockEl.innerText = timeString;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+    }
+
+    function getTodayKey() {
+        const d = new Date();
+        return d.toISOString().split('T')[0];
+    }
+
+    function recordDailyLedger() {
+        const today = getTodayKey();
+        if(!dailyLedgerMap[today]) {
+            dailyLedgerMap[today] = { date: today, revenue: 0, expenses: 0, orders: 0 };
+            persistData();
+        }
+    }
+
+    function renderTables() {
+        const gridDown = document.getElementById('grid-downstairs');
+        const gridUp = document.getElementById('grid-upstairs');
+        const gridTakeaway = document.getElementById('grid-takeaway');
+        
+        gridDown.innerHTML = ''; gridUp.innerHTML = ''; gridTakeaway.innerHTML = '';
+
+        for (let i = 1; i <= 12; i++) {
+            const t = tables[i];
+            const card = document.createElement('div');
+            card.className = `table-card ${t.isOccupied ? 'occupied' : ''}`;
+            card.onclick = () => openPosForTable(i);
+            
+            let badgeHtml = '';
+            if(t.isOccupied && t.currentType !== 'Dine-in') {
+                badgeHtml = `<div class="table-type-badge" style="display:block;">${t.currentType}</div>`;
+            }
+
+            card.innerHTML = `
+                ${badgeHtml}
+                <h2>${t.name.replace('Table ', 'T').replace('Order ', '')}</h2>
+                <p>${t.isOccupied ? 'Occupied' : 'Vacant'}</p>
+            `;
+
+            if (i <= 3) gridDown.appendChild(card);
+            else if (i <= 8) gridUp.appendChild(card);
+            else gridTakeaway.appendChild(card);
+        }
+    }
+
+    function openPosForTable(id) {
+        activeTableId = id;
+        document.getElementById('current-table-label').innerText = tables[id].name;
+        setOrderTypeUI(tables[id].currentType);
+        
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('pos-view').classList.add('active');
+        
+        renderCart(); 
+    }
+
+    function openTableDashboard() {
+        if(activeTableId !== null) {
+            tables[activeTableId].isOccupied = tables[activeTableId].cart.length > 0;
+        }
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('dashboard-view').classList.add('active');
+        renderTables();
+    }
+
+    function openSalesAnalysisView() {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('analysis-view').classList.add('active');
+        
+        const startPicker = document.getElementById('analysis-start-date');
+        const endPicker = document.getElementById('analysis-end-date');
+        updateAnalysisDashboard('custom', startPicker.value, endPicker.value);
+    }
+
+    function openOrdersHistoryView() {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('history-view').classList.add('active');
+        renderOrdersHistoryTable();
+    }
+
+    function openAccountsPageView() {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('accounts-page-view').classList.add('active');
+        renderFullAccountsPage();
+    }
+
+    function openTodayDataView() {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('today-view').classList.add('active');
+        renderTodayDataView();
+    }
+
+    function openStaffPageView() {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById('staff-page-view').classList.add('active');
+        renderStaffPage();
+    }
+
+    function renderCategories() {
+        const container = document.getElementById('category-filters');
+        const datalist = document.getElementById('cat-list');
+        
+        const categories = ['All', ...new Set(menuItems.map(item => item.category))];
+        
+        container.innerHTML = '';
+        if(datalist) datalist.innerHTML = '';
+
+        categories.forEach(cat => {
+            const btn = document.createElement('button');
+            btn.className = `cat-btn ${cat === currentCategoryFilter && !searchQuery ? 'active' : ''}`;
+            btn.innerText = cat;
+            btn.onclick = () => {
+                searchQuery = '';
+                document.getElementById('menu-search').value = '';
+                currentCategoryFilter = cat;
+                renderCategories();
+                renderMenu();
+            };
+            container.appendChild(btn);
+
+            if(cat !== 'All' && datalist) {
+                const option = document.createElement('option');
+                option.value = cat;
+                datalist.appendChild(option);
+            }
+        });
+    }
+
+    function handleSearch(query) {
+        searchQuery = query.toLowerCase().trim();
+        renderMenu();
+    }
+
+    function renderMenu() {
+        const grid = document.getElementById('menu-grid');
+        grid.innerHTML = '';
+        
+        let filteredItems = menuItems;
+
+        if (searchQuery) {
+            filteredItems = menuItems.filter(i => i.name.toLowerCase().includes(searchQuery));
+            if (filteredItems.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 40px; color:var(--text-light);">No items found matching your search.</div>';
+                return;
+            }
+            filteredItems.forEach(item => {
+                grid.appendChild(createItemCard(item));
+            });
+            return;
+        }
+
+        const categoriesToRender = currentCategoryFilter === 'All' 
+            ? [...new Set(menuItems.map(i => i.category))] 
+            : [currentCategoryFilter];
+
+        categoriesToRender.forEach(cat => {
+            if (currentCategoryFilter === 'All') {
+                const header = document.createElement('div');
+                header.className = 'category-header';
+                header.innerText = cat;
+                grid.appendChild(header);
+            }
+
+            const items = menuItems.filter(i => i.category === cat);
+            items.forEach(item => {
+                grid.appendChild(createItemCard(item));
+            });
+        });
+    }
+
+    function createItemCard(item) {
+        const card = document.createElement('div');
+        card.className = 'menu-item';
+        card.onclick = () => addToCart(item);
+        
+        let imgContent = item.img && item.img.startsWith('http') ? `<img src="${item.img}" alt="${item.name}">` : (item.img || '🍽️');
+        
+        card.innerHTML = `
+            <button class="delete-item-btn" onclick="event.stopPropagation(); deleteMenuItem(${item.id})" title="Remove item">×</button>
+            <div class="menu-item-img">${imgContent}</div>
+            <h3>${item.name}</h3>
+            <div class="price">₹${item.price.toFixed(2)}</div>
+        `;
+        return card;
+    }
+
+    function deleteMenuItem(id) {
+        if(confirm("Are you sure you want to remove this item from the menu?")) {
+            menuItems = menuItems.filter(i => i.id !== id);
+            persistData();
+            renderCategories();
+            renderMenu();
+        }
+    }
+
+    function quickAddFavorite(name, price, img) {
+        if(activeTableId === null) {
+            activeTableId = 1; 
+        }
+        const item = { id: name.replace(/\s+/g, ''), name, price, img, category: 'Favorites' };
+        addToCart(item);
+    }
+
+    function setOrderType(type) {
+        tables[activeTableId].currentType = type;
+        setOrderTypeUI(type);
+    }
+
+    function setOrderTypeUI(type) {
+        document.querySelectorAll('.ot-btn').forEach(btn => btn.classList.remove('active'));
+        if(type === 'Dine-in') document.getElementById('ot-dine').classList.add('active');
+        if(type === 'Takeaway') document.getElementById('ot-takeaway').classList.add('active');
+        if(type === 'Packed') document.getElementById('ot-packed').classList.add('active');
+    }
+
+    function addToCart(item) {
+        const cart = tables[activeTableId].cart;
+        const existingItem = cart.find(c => c.name === item.name);
+        if (existingItem) existingItem.qty += 1;
+        else cart.push({ ...item, qty: 1 });
+        renderCart();
+    }
+
+    function changeQty(index, delta) {
+        const cart = tables[activeTableId].cart;
+        cart[index].qty += delta;
+        if (cart[index].qty <= 0) {
+            cart.splice(index, 1);
+        }
+        renderCart();
+    }
+
+    function removeFromCart(index) {
+        tables[activeTableId].cart.splice(index, 1);
+        renderCart();
+    }
+
+    function clearCurrentCart() {
+        tables[activeTableId].cart = [];
+        tables[activeTableId].discount = 0;
+        renderCart();
+    }
+
+    function renderCart() {
+        const cart = tables[activeTableId].cart;
+        const container = document.getElementById('cart-items');
+        
+        if (cart.length === 0) {
+            container.innerHTML = '<div style="text-align:center; margin-top:40px; color:var(--text-light);">No items added yet.</div>';
+            updateTotals(0, 0);
+            return;
+        }
+
+        container.innerHTML = '';
+        let subtotal = 0;
+
+        cart.forEach((item, index) => {
+            const itemTotal = item.price * item.qty;
+            subtotal += itemTotal;
+            const row = document.createElement('div');
+            row.className = 'cart-item';
+            row.innerHTML = `
+                <div class="cart-item-info">
+                    <h4>${item.name}</h4>
+                    <p>₹${item.price.toFixed(2)} each</p>
+                </div>
+                <div style="display:flex; align-items:center;">
+                    <div class="qty-controls">
+                        <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
+                        <span>${item.qty}</span>
+                        <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+                    </div>
+                    <div class="cart-item-price">₹${itemTotal.toFixed(2)}</div>
+                    <button class="delete-btn" onclick="removeFromCart(${index})">X</button>
+                </div>
+            `;
+            container.appendChild(row);
+        });
+
+        let discAmt = 0;
+        const curTable = tables[activeTableId];
+        if(curTable.discount > 0) {
+            if(curTable.discountType === 'percentage') {
+                discAmt = subtotal * (curTable.discount / 100);
+            } else {
+                discAmt = curTable.discount;
+            }
+            if(discAmt > subtotal) discAmt = subtotal;
+        }
+
+        const finalTotal = subtotal - discAmt;
+        updateTotals(subtotal, discAmt, finalTotal);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function updateTotals(sub, disc, tot) {
+        document.getElementById('subtotal').innerText = `₹${sub.toFixed(2)}`;
+        
+        const discRow = document.getElementById('discount-row');
+        if(disc > 0) {
+            discRow.style.display = 'flex';
+            document.getElementById('discount-val').innerText = `-₹${disc.toFixed(2)}`;
+        } else {
+            discRow.style.display = 'none';
+        }
+
+        document.getElementById('total').innerText = `₹${tot.toFixed(2)}`;
+        document.getElementById('total').dataset.val = tot;
+    }
+
+    function openDiscountModal() {
+        const cart = tables[activeTableId].cart;
+        if(cart.length === 0) { alert("Cart is empty."); return; }
+        openModal('discount-modal');
+    }
+
+    function applyDiscount() {
+        const type = document.getElementById('discount-type').value;
+        const val = parseFloat(document.getElementById('discount-input-val').value);
+        if(isNaN(val) || val < 0) { alert("Please enter a valid discount amount/percentage."); return; }
+
+        tables[activeTableId].discount = val;
+        tables[activeTableId].discountType = type;
+
+        closeModal('discount-modal');
+        renderCart();
+        alert("Privilege discount applied successfully!");
+    }
+
+    function saveOrder() {
+        const cart = tables[activeTableId].cart;
+        if (cart.length === 0) {
+            alert("Cart is empty! Add items before saving.");
+            return;
+        }
+        alert(`Order saved and sent to kitchen for ${tables[activeTableId].name}`);
+        openTableDashboard();
+    }
+
+    function printKOT() {
+        const cart = tables[activeTableId].cart;
+        if (cart.length === 0) { alert("Cart is empty. Cannot print KOT."); return; }
+        
+        const curTable = tables[activeTableId];
+        const timestamp = new Date().toLocaleString();
+        
+        let kotWindow = window.open('', '_blank', 'width=400,height=600');
+        let kotHtml = `
+            <html>
+            <head><title>Kitchen Order Ticket (KOT)</title>
+            <style>
+                body { font-family: 'Courier New', Courier, monospace; padding: 20px; color: #111; }
+                h2 { text-align: center; margin-bottom: 5px; font-size: 22px; }
+                .meta { margin-bottom: 15px; font-size: 13px; border-bottom: 2px solid #111; padding-bottom: 8px; }
+                .item-row { display: flex; justify-content: space-between; font-size: 16px; font-weight: bold; margin-bottom: 6px; }
+            </style>
+            </head>
+            <body>
+                <h2>KITCHEN TICKET</h2>
+                <div class="meta">
+                    <div><strong>Location:</strong> ${curTable.name}</div>
+                    <div><strong>Type:</strong> ${curTable.currentType}</div>
+                    <div><strong>Time:</strong> ${timestamp}</div>
+                </div>
+                <div>
+                    <h3>Items:</h3>
+                    ${cart.map(i => `<div class="item-row"><span>${i.name}</span> <span>x ${i.qty}</span></div>`).join('')}
+                </div>
+                <script>window.print(); setTimeout(() => window.close(), 500);<\/script>
+            </body>
+            </html>
+        `;
+        kotWindow.document.write(kotHtml);
+        kotWindow.document.close();
+    }
+
+    function openPaymentModal() {
+        const cart = tables[activeTableId].cart;
+        if (cart.length === 0) { alert("Cart is empty."); return; }
+        const total = parseFloat(document.getElementById('total').dataset.val);
+        document.getElementById('checkout-table').innerText = `(${tables[activeTableId].name})`;
+        document.getElementById('payment-amount-display').innerText = `₹${total.toFixed(2)}`;
+        openModal('payment-modal');
+    }
+
+    function openCashModal() {
+        closeModal('payment-modal');
+        const total = parseFloat(document.getElementById('total').dataset.val);
+        document.getElementById('cash-bill-amt').innerText = `₹${total.toFixed(2)}`;
+        document.getElementById('cash-given-input').value = '';
+        document.getElementById('change-display-box').style.display = 'none';
+        openModal('cash-modal');
+    }
+
+    function calculateChange() {
+        const total = parseFloat(document.getElementById('total').dataset.val);
+        const givenVal = document.getElementById('cash-given-input').value;
+        const changeBox = document.getElementById('change-display-box');
+        const changeValEl = document.getElementById('change-amount-val');
+
+        if(givenVal === '' || isNaN(givenVal)) {
+            changeBox.style.display = 'none';
+            return;
+        }
+
+        const given = parseFloat(givenVal);
+        if(given >= total) {
+            const change = given - total;
+            changeValEl.innerText = `₹${change.toFixed(2)}`;
+            changeBox.style.display = 'block';
+        } else {
+            changeBox.style.display = 'none';
+        }
+    }
+
+    function finalizeCashPayment() {
+        closeModal('cash-modal');
+        processPayment('Cash');
+    }
+
+    function openLendedCustomerModal() {
+        closeModal('payment-modal');
+        openModal('lended-customer-modal');
+    }
+
+    function confirmLendedPayment() {
+        const name = document.getElementById('lended-name').value.trim();
+        const phone = document.getElementById('lended-phone').value.trim();
+        if(!name || !phone) {
+            alert("Please enter both patron name and mobile number.");
+            return;
+        }
+
+        processPayment('Lended', { name, phone });
+        closeModal('lended-customer-modal');
+    }
+
+    function processPayment(method, customerInfo = null) {
+        const total = parseFloat(document.getElementById('total').dataset.val);
+        const curTable = tables[activeTableId];
+        const cartSnapshot = [...curTable.cart];
+        const timestamp = new Date().toLocaleString();
+        
+        metrics.orders++;
+        metrics.sales += total;
+        if (method === 'Cash') metrics.cash += total;
+        else if (method === 'UPI') metrics.upi += total;
+        else if (method === 'Lended') {
+            metrics.lended += total;
+            
+            if(customerInfo) {
+                if(!lendedCustomers[customerInfo.name]) {
+                    lendedCustomers[customerInfo.name] = { phone: customerInfo.phone, totalDue: 0, orders: [] };
+                }
+                lendedCustomers[customerInfo.name].totalDue += total;
+                lendedCustomers[customerInfo.name].orders.push({
+                    timestamp,
+                    table: curTable.name,
+                    items: cartSnapshot,
+                    total
+                });
+            }
+        }
+
+        const today = getTodayKey();
+        recordDailyLedger();
+        dailyLedgerMap[today].revenue += total;
+        dailyLedgerMap[today].orders += 1;
+
+        cartSnapshot.forEach(item => {
+            if(!itemSalesLedger[item.name]) {
+                itemSalesLedger[item.name] = { category: item.category || 'General', qty: 0, revenue: 0 };
+            }
+            itemSalesLedger[item.name].qty += item.qty;
+            itemSalesLedger[item.name].revenue += (item.price * item.qty);
+        });
+
+        const orderSummaryText = cartSnapshot.map(i => `${i.name} (x${i.qty})`).join(', ');
+        ordersHistory.unshift({
+            timestamp,
+            dateKey: today,
+            table: curTable.name,
+            orderType: curTable.currentType,
+            itemsText: orderSummaryText,
+            paymentStatus: method === 'Lended' ? `Lended (${customerInfo.name})` : `Paid (${method})`,
+            total
+        });
+
+        persistData();
+
+        curTable.cart = [];
+        curTable.discount = 0;
+        curTable.isOccupied = false;
+        curTable.currentType = curTable.defaultType;
+        
+        closeModal('payment-modal');
+        alert(`Settlement of ₹${total.toFixed(2)} recorded successfully via ${method}.`);
+        openTableDashboard();
+    }
+
+    function renderOrdersHistoryTable() {
+        const tbody = document.getElementById('orders-history-tbody');
+        tbody.innerHTML = '';
+
+        if(ordersHistory.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-light);">No orders history found.</td></tr>`;
+            return;
+        }
+
+        ordersHistory.forEach(ord => {
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td><small style="color:var(--text-light);">${ord.timestamp}</small></td>
+                <td><strong>${ord.table}</strong></td>
+                <td><span style="background:var(--bg-color); padding:3px 8px; border-radius:6px; font-size:12px; border:1px solid var(--border);">${ord.orderType}</span></td>
+                <td>${ord.itemsText}</td>
+                <td><span style="font-weight:600; color:var(--primary);">${ord.paymentStatus}</span></td>
+                <td style="font-weight:700; color:var(--accent);">₹${ord.total.toFixed(2)}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function switchAnalysisTab(period, btnElement) {
+        document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        
+        const startPicker = document.getElementById('analysis-start-date');
+        const endPicker = document.getElementById('analysis-end-date');
+        
+        const now = new Date();
+        let startDate = new Date();
+        
+        if(period === 'day') {
+            startDate = now;
+        } else if(period === 'week') {
+            startDate.setDate(now.getDate() - 7);
+        } else if(period === 'month') {
+            startDate.setMonth(now.getMonth() - 1);
+        } else if(period === 'year') {
+            startDate.setFullYear(now.getFullYear() - 1);
+        }
+        
+        startPicker.value = startDate.toISOString().split('T')[0];
+        endPicker.value = now.toISOString().split('T')[0];
+        
+        updateAnalysisDashboard('custom', startPicker.value, endPicker.value);
+    }
+
+    function onCustomDateRangeChange() {
+        const startPicker = document.getElementById('analysis-start-date').value;
+        const endPicker = document.getElementById('analysis-end-date').value;
+        updateAnalysisDashboard('custom', startPicker, endPicker);
+    }
+
+    function updateAnalysisDashboard(mode, startDateStr, endDateStr) {
+        if(!startDateStr) startDateStr = getTodayKey();
+        if(!endDateStr) endDateStr = getTodayKey();
+
+        document.getElementById('analysis-period-label').innerText = `Analysis Range: [${startDateStr} to ${endDateStr}]`;
+
+        let rev = 0;
+        let exp = 0;
+        let ord = 0;
+
+        const start = new Date(startDateStr);
+        const end = new Date(endDateStr);
+        end.setHours(23, 59, 59, 999);
+
+        let curveData = {};
+
+        Object.keys(dailyLedgerMap).forEach(dateKey => {
+            const d = new Date(dateKey);
+            const entry = dailyLedgerMap[dateKey];
+            
+            if(d >= start && d <= end) {
+                rev += entry.revenue;
+                exp += entry.expenses;
+                ord += entry.orders;
+                curveData[dateKey] = entry.revenue;
+            }
+        });
+
+        if(rev === 0 && startDateStr === getTodayKey() && endDateStr === getTodayKey()) {
+            rev = metrics.sales;
+            exp = metrics.expenses;
+            ord = metrics.orders;
+            curveData[startDateStr] = rev;
+        }
+
+        let totalStaffPayouts = 0;
+        staffList.forEach(st => {
+            if(st.transactions) {
+                st.transactions.forEach(tr => {
+                    const trDate = new Date(tr.timestamp.split(',')[0].trim());
+                    if(trDate >= start && trDate <= end && tr.type === 'payout') {
+                        totalStaffPayouts += tr.amount;
+                    }
+                });
+            }
+        });
+
+        let net = rev - exp - totalStaffPayouts;
+
+        document.getElementById('ana-rev').innerText = `₹${rev.toFixed(2)}`;
+        document.getElementById('ana-exp').innerText = `₹${exp.toFixed(2)}`;
+        document.getElementById('ana-net').innerText = `₹${net.toFixed(2)}`;
+        document.getElementById('ana-orders').innerText = ord;
+
+        renderSalesCurveChartSVG(curveData);
+
+        const itemTbody = document.getElementById('item-performance-tbody');
+        itemTbody.innerHTML = '';
+        const itemKeys = Object.keys(itemSalesLedger);
+
+        if(itemKeys.length === 0) {
+            itemTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-light);">No data recorded yet.</td></tr>`;
+        } else {
+            itemKeys.sort((a,b) => itemSalesLedger[b].qty - itemSalesLedger[a].qty);
+            itemKeys.forEach(name => {
+                const data = itemSalesLedger[name];
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${name}</strong></td>
+                    <td><span style="background:var(--bg-color); padding:3px 8px; border-radius:6px; font-size:12px; border:1px solid var(--border);">${data.category}</span></td>
+                    <td><strong>${data.qty}</strong> times</td>
+                    <td style="color:var(--primary); font-weight:600;">₹${data.revenue.toFixed(2)}</td>
+                `;
+                itemTbody.appendChild(row);
+            });
+        }
+
+        const dailyTbody = document.getElementById('daily-ledger-tbody');
+        dailyTbody.innerHTML = '';
+        const dateKeys = Object.keys(dailyLedgerMap).sort().reverse();
+
+        if(dateKeys.length === 0) {
+            dailyTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-light);">No daily logs available.</td></tr>`;
+        } else {
+            dateKeys.forEach(date => {
+                const dayObj = dailyLedgerMap[date];
+                const dayNet = dayObj.revenue - dayObj.expenses;
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${date}</strong></td>
+                    <td style="color:var(--cash-color); font-weight:600;">₹${dayObj.revenue.toFixed(2)}</td>
+                    <td style="color:var(--expense-color); font-weight:600;">₹${dayObj.expenses.toFixed(2)}</td>
+                    <td style="color:var(--accent); font-weight:700;">₹${dayNet.toFixed(2)}</td>
+                `;
+                dailyTbody.appendChild(row);
+            });
+        }
+    }
+
+    function renderSalesCurveChartSVG(curveData) {
+        const svg = document.getElementById('sales-curve-svg');
+        const axisLabels = document.getElementById('chart-axis-labels');
+        svg.innerHTML = '';
+        axisLabels.innerHTML = '';
+
+        const dates = Object.keys(curveData).sort();
+        if(dates.length === 0) {
+            svg.innerHTML = `<text x="250" y="75" text-anchor="middle" fill="#7F8C8D" font-size="14">No revenue momentum data for curve chart.</text>`;
+            return;
+        }
+
+        const values = dates.map(d => curveData[d]);
+        const maxVal = Math.max(...values, 100);
+        const minVal = 0;
+
+        const svgWidth = 500;
+        const svgHeight = 130;
+        
+        let points = [];
+        dates.forEach((date, index) => {
+            const x = dates.length === 1 ? svgWidth / 2 : (index / (dates.length - 1)) * (svgWidth - 40) + 20;
+            const y = svgHeight - ((values[index] - minVal) / (maxVal - minVal || 1)) * (svgHeight - 30) - 15;
+            points.push({ x, y, val: values[index], date });
+        });
+
+        let pathD = `M ${points[0].x} ${points[0].y}`;
+        for(let i = 0; i < points.length - 1; i++) {
+            const p0 = points[i];
+            const p1 = points[i+1];
+            const cpX = (p0.x + p1.x) / 2;
+            pathD += ` C ${cpX} ${p0.y}, ${cpX} ${p1.y}, ${p1.x} ${p1.y}`;
+        }
+
+        let areaD = pathD + ` L ${points[points.length-1].x} ${svgHeight} L ${points[0].x} ${svgHeight} Z`;
+
+        svg.innerHTML = `
+            <defs>
+                <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.4"/>
+                    <stop offset="100%" stop-color="#D4AF37" stop-opacity="0.0"/>
+                </linearGradient>
+            </defs>
+            <path d="${areaD}" fill="url(#curveGradient)" />
+            <path d="${pathD}" fill="none" stroke="#D4AF37" stroke-width="3" />
+            ${points.map(p => `
+                <circle cx="${p.x}" cy="${p.y}" r="5" fill="#2C1810" stroke="#D4AF37" stroke-width="2">
+                    <title>${p.date}: ₹${p.val}</title>
+                </circle>
+            `).join('')}
+        `;
+
+        if(dates.length > 0) {
+            axisLabels.innerHTML = `<span>${dates[0]}</span><span>${dates[dates.length - 1]}</span>`;
+        }
+    }
+
+    function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    function openPendingOrders() {
+        const container = document.getElementById('pending-list-container');
+        container.innerHTML = '';
+        let hasPending = false;
+
+        for (let i = 1; i <= 12; i++) {
+            const t = tables[i];
+            if (t.cart.length > 0) {
+                hasPending = true;
+                const tot = t.cart.reduce((s, item) => s + (item.price * item.qty), 0);
+                const el = document.createElement('div');
+                el.className = 'pending-item';
+                el.innerHTML = `
+                    <div>
+                        <strong>${t.name}</strong> <span style="font-size:12px; color:var(--text-light);">(${t.currentType})</span><br>
+                        <span style="font-size:14px;">${t.cart.length} items | ₹${tot.toFixed(2)}</span>
+                    </div>
+                    <button onclick="openPosFromPending(${i})">Open Tab</button>
+                `;
+                container.appendChild(el);
+            }
+        }
+        if (!hasPending) container.innerHTML = '<p style="text-align:center; color:var(--text-light);">No active service tabs.</p>';
+        openModal('pending-modal');
+    }
+
+    function openPosFromPending(id) {
+        closeModal('pending-modal');
+        openPosForTable(id);
+    }
+
+    function openEditMenu() { openModal('edit-menu-modal'); }
+    
+    function saveNewMenuItem() {
+        const cat = document.getElementById('edit-category').value.trim();
+        const name = document.getElementById('edit-name').value.trim();
+        const price = parseFloat(document.getElementById('edit-price').value);
+        let img = document.getElementById('edit-img').value.trim();
+
+        if(!cat || !name || isNaN(price) || price <= 0) {
+            alert("Please fill in valid category, name, and price.");
+            return;
+        }
+        if(!img) img = "🍽️";
+
+        menuItems.push({ id: autoIdCounter++, name, price, category: cat, img });
+        persistData();
+        
+        document.getElementById('edit-category').value = '';
+        document.getElementById('edit-name').value = '';
+        document.getElementById('edit-price').value = '';
+        document.getElementById('edit-img').value = '';
+        document.getElementById('emoji-selector').selectedIndex = 0;
+        
+        renderCategories();
+        renderMenu();
+        closeModal('edit-menu-modal');
+        alert(`${name} added to menu successfully!`);
+    }
+
+    // --- PDF / Excel Inventory Importer Feature ---
+    function handleInventoryFileUpload(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            parseAndMergeInventoryCSV(text);
+        };
+        reader.readAsText(file);
+    }
+
+    function processPastedInventory() {
+        const text = document.getElementById('pasted-inventory-data').value.trim();
+        if(!text) {
+            alert("Please paste valid CSV data.");
+            return;
+        }
+        parseAndMergeInventoryCSV(text);
+        closeModal('paste-inventory-modal');
+        document.getElementById('pasted-inventory-data').value = '';
+    }
+
+    function parseAndMergeInventoryCSV(csvText) {
+        const lines = csvText.split('\n');
+        let addedCount = 0;
+
+        lines.forEach(line => {
+            const parts = line.split(',').map(p => p.trim());
+            if(parts.length >= 3) {
+                const category = parts[0];
+                const name = parts[1];
+                const price = parseFloat(parts[2]);
+                const img = parts[3] || '🍽️';
+
+                if(category && name && !isNaN(price) && price > 0) {
+                    // Check if item exists, update price or add new
+                    const existing = menuItems.find(i => i.name.toLowerCase() === name.toLowerCase());
+                    if(existing) {
+                        existing.price = price;
+                        existing.category = category;
+                        existing.img = img;
+                    } else {
+                        menuItems.push({ id: autoIdCounter++, name, price, category, img });
+                        addedCount++;
+                    }
+                }
+            }
+        });
+
+        persistData();
+        renderCategories();
+        renderMenu();
+        alert(`Inventory successfully updated! Added/Updated items from spreadsheet data.`);
+    }
+
+    // --- Dedicated Staff & Salary Page Logic ---
+    function renderStaffPage() {
+        const monthPickerVal = document.getElementById('staff-month-picker').value || getTodayKey().slice(0, 7);
+        const tbody = document.getElementById('staff-roster-tbody');
+        const activityTbody = document.getElementById('staff-activity-tbody');
+        tbody.innerHTML = '';
+        activityTbody.innerHTML = '';
+
+        populateStaffDropdowns();
+
+        if(staffList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--text-light);">No staff members added yet.</td></tr>`;
+            activityTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-light);">No activity records.</td></tr>`;
+            return;
+        }
+
+        let allTransactions = [];
+
+        staffList.forEach(st => {
+            if(!st.transactions) st.transactions = [];
+            
+            let monthTransactions = st.transactions.filter(t => t.dateStr.startsWith(monthPickerVal));
+            
+            let totalAdvances = 0;
+            let totalDeductions = 0;
+            let totalManualAdj = 0;
+
+            monthTransactions.forEach(t => {
+                if(t.type === 'payout') totalAdvances += t.amount;
+                if(t.type === 'leave') totalDeductions += t.amount;
+                if(t.type === 'adjust_plus') totalManualAdj += t.amount;
+                if(t.type === 'adjust_minus') totalManualAdj -= t.amount;
+
+                allTransactions.push({
+                    timestamp: t.timestamp,
+                    name: st.name,
+                    typeText: t.type.toUpperCase(),
+                    note: t.note,
+                    impact: t.type === 'payout' ? `-₹${t.amount}` : (t.type === 'leave' ? `-₹${t.amount}` : (t.type === 'adjust_plus' ? `+₹${t.amount}` : `-₹${Math.abs(t.amount)}`))
+                });
+            });
+
+            const netPayable = st.baseSalary - totalAdvances - totalDeductions + totalManualAdj;
+
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${st.name}</strong></td>
+                <td>${st.role}</td>
+                <td>₹${st.baseSalary.toFixed(2)}</td>
+                <td style="color:var(--staff-color); font-weight:600;">₹${totalAdvances.toFixed(2)}</td>
+                <td style="color:var(--leave-color); font-weight:600;">₹${totalDeductions.toFixed(2)}</td>
+                <td style="font-weight:600;">₹${totalManualAdj.toFixed(2)}</td>
+                <td style="color:var(--primary); font-weight:700; font-size:15px;">₹${netPayable.toFixed(2)}</td>
+                <td><span style="background:var(--bg-color); padding:3px 8px; border-radius:6px; font-size:12px; border:1px solid var(--border);">${st.paymentTerm}</span></td>
+                <td>
+                    <button onclick="openStaffAdjustModal('${st.id}')" style="background:var(--gold); color:var(--primary); border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;">± Adjust</button>
+                    <button onclick="deleteStaffMember('${st.id}')" style="background:#FF4D4F; color:white; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px; margin-left:4px;">Remove</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        if(allTransactions.length === 0) {
+            activityTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-light);">No activity records for ${monthPickerVal}.</td></tr>`;
+        } else {
+            allTransactions.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+            allTransactions.forEach(tr => {
+                let r = document.createElement('tr');
+                r.innerHTML = `
+                    <td><small style="color:var(--text-light);">${tr.timestamp}</small></td>
+                    <td><strong>${tr.name}</strong></td>
+                    <td>${tr.typeText}</td>
+                    <td>${tr.note}</td>
+                    <td style="font-weight:700;">${tr.impact}</td>
+                `;
+                activityTbody.appendChild(r);
+            });
+        }
+    }
+
+    function populateStaffDropdowns() {
+        const payoutSelect = document.getElementById('payout-staff-select');
+        const leaveSelect = document.getElementById('leave-staff-select');
+        payoutSelect.innerHTML = '';
+        leaveSelect.innerHTML = '';
+
+        staffList.forEach(st => {
+            let opt1 = document.createElement('option');
+            opt1.value = st.id;
+            opt1.innerText = `${st.name} (${st.role}) - Base: ₹${st.baseSalary}`;
+            payoutSelect.appendChild(opt1);
+
+            let opt2 = document.createElement('option');
+            opt2.value = st.id;
+            opt2.innerText = `${st.name} (${st.role})`;
+            leaveSelect.appendChild(opt2);
+        });
+    }
+
+    function submitNewStaff() {
+        const name = document.getElementById('new-staff-name').value.trim();
+        const role = document.getElementById('new-staff-role').value.trim();
+        const baseSalary = parseFloat(document.getElementById('new-staff-salary').value);
+        const paymentTerm = document.getElementById('new-staff-term').value;
+
+        if(!name || isNaN(baseSalary) || baseSalary < 0) {
+            alert("Please provide a valid staff name and base salary.");
+            return;
+        }
+
+        staffList.push({
+            id: 'staff_' + Date.now(),
+            name,
+            role: role || 'Staff',
+            baseSalary,
+            paymentTerm,
+            transactions: []
+        });
+
+        persistData();
+        closeModal('add-staff-modal');
+        document.getElementById('new-staff-name').value = '';
+        document.getElementById('new-staff-role').value = '';
+        document.getElementById('new-staff-salary').value = '';
+        renderStaffPage();
+        alert(`Staff member ${name} registered successfully!`);
+    }
+
+    function submitStaffPayout() {
+        const staffId = document.getElementById('payout-staff-select').value;
+        const amt = parseFloat(document.getElementById('payout-staff-amt').value);
+        const note = document.getElementById('payout-staff-note').value.trim() || 'Advance Payout';
+        const timestamp = new Date().toLocaleString();
+        const dateStr = getTodayKey();
+
+        if(!staffId || isNaN(amt) || amt <= 0) {
+            alert("Please select staff and enter valid amount.");
+            return;
+        }
+
+        const staff = staffList.find(s => s.id === staffId);
+        if(staff) {
+            staff.transactions.push({ timestamp, dateStr, type: 'payout', amount: amt, note });
+            if(!metrics.staffPayouts) metrics.staffPayouts = 0;
+            metrics.staffPayouts += amt;
+            persistData();
+            closeModal('staff-payout-modal');
+            document.getElementById('payout-staff-amt').value = '';
+            document.getElementById('payout-staff-note').value = '';
+            renderStaffPage();
+            alert(`Recorded advance payout of ₹${amt} for ${staff.name}. Automatically deducted from monthly salary.`);
+        }
+    }
+
+    function submitStaffLeaveRecord() {
+        const staffId = document.getElementById('leave-staff-select').value;
+        const dateStr = document.getElementById('staff-leave-date').value || getTodayKey();
+        const leaveType = document.getElementById('staff-leave-type').value;
+        const note = document.getElementById('staff-leave-note').value.trim() || 'Leave';
+        const timestamp = new Date().toLocaleString();
+
+        if(!staffId || !dateStr) {
+            alert("Please select staff and leave date.");
+            return;
+        }
+
+        const staff = staffList.find(s => s.id === staffId);
+        if(staff) {
+            const dailySalary = staff.baseSalary / 30;
+            let deduction = leaveType === 'full' ? dailySalary : (dailySalary / 2);
+            deduction = Math.round(deduction * 100) / 100;
+
+            staff.transactions.push({
+                timestamp,
+                dateStr,
+                type: 'leave',
+                amount: deduction,
+                note: `${leaveType.toUpperCase()} leave: ${note} (Deducted ₹${deduction})`
+            });
+
+            persistData();
+            closeModal('staff-leave-modal');
+            document.getElementById('staff-leave-note').value = '';
+            renderStaffPage();
+            alert(`Recorded ${leaveType} leave for ${staff.name}. Salary deduction of ₹${deduction} applied automatically.`);
+        }
+    }
+
+    let currentAdjustStaffId = '';
+    function openStaffAdjustModal(id) {
+        currentAdjustStaffId = id;
+        const st = staffList.find(s => s.id === id);
+        if(st) {
+            document.getElementById('adjust-staff-name').innerText = `${st.name} (${st.role})`;
+            document.getElementById('adjust-amt').value = '';
+            document.getElementById('adjust-note').value = '';
+            openModal('staff-adjust-modal');
+        }
+    }
+
+    function submitStaffAdjustment() {
+        const type = document.getElementById('adjust-type').value;
+        const amt = parseFloat(document.getElementById('adjust-amt').value);
+        const note = document.getElementById('adjust-note').value.trim() || (type === 'plus' ? 'Bonus Incentive' : 'Penalty');
+        const timestamp = new Date().toLocaleString();
+        const dateStr = getTodayKey();
+
+        if(isNaN(amt) || amt <= 0) {
+            alert("Please enter a valid amount.");
+            return;
+        }
+
+        const staff = staffList.find(s => s.id === currentAdjustStaffId);
+        if(staff) {
+            const trType = type === 'plus' ? 'adjust_plus' : 'adjust_minus';
+            staff.transactions.push({ timestamp, dateStr, type: trType, amount: amt, note });
+            persistData();
+            closeModal('staff-adjust-modal');
+            renderStaffPage();
+            alert(`Manual adjustment applied for ${staff.name}.`);
+        }
+    }
+
+    function deleteStaffMember(id) {
+        if(confirm("Are you sure you want to remove this staff member from the directory?")) {
+            staffList = staffList.filter(s => s.id !== id);
+            persistData();
+            renderStaffPage();
+        }
+    }
+
+    // --- Full Accounts Page Renderer ---
+    function renderFullAccountsPage() {
+        let totalStaffAdvances = 0;
+        staffList.forEach(st => {
+            if(st.transactions) {
+                st.transactions.forEach(tr => {
+                    if(tr.type === 'payout') totalStaffAdvances += tr.amount;
+                });
+            }
+        });
+        const totalStaff = (metrics.staffPayouts || 0) + totalStaffAdvances;
+        const netProfit = metrics.sales - metrics.expenses - totalStaff;
+
+        document.getElementById('full-stat-sales').innerText = `₹${metrics.sales.toFixed(2)}`;
+        document.getElementById('full-stat-orders').innerText = metrics.orders;
+        document.getElementById('full-stat-cash').innerText = `₹${metrics.cash.toFixed(2)}`;
+        document.getElementById('full-stat-upi').innerText = `₹${metrics.upi.toFixed(2)}`;
+        document.getElementById('full-stat-lended').innerText = `₹${metrics.lended.toFixed(2)}`;
+        document.getElementById('full-stat-expenses').innerText = `-₹${metrics.expenses.toFixed(2)}`;
+        document.getElementById('full-stat-staff').innerText = `-₹${totalStaff.toFixed(2)}`;
+        document.getElementById('full-stat-profit').innerText = `₹${netProfit.toFixed(2)}`;
+
+        renderFullKhataTable();
+    }
+
+    function renderFullKhataTable() {
+        const tbody = document.getElementById('full-khata-tbody');
+        tbody.innerHTML = '';
+        const names = Object.keys(lendedCustomers);
+
+        if(names.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-light);">No active credit tabs.</td></tr>`;
+            return;
+        }
+
+        names.forEach(name => {
+            const cust = lendedCustomers[name];
+            let row = document.createElement('tr');
+            row.innerHTML = `
+                <td><strong>${name}</strong></td>
+                <td>${cust.phone}</td>
+                <td style="color:var(--lended-color); font-weight:700;">₹${cust.totalDue.toFixed(2)}</td>
+                <td><button onclick="openSettleModal('${name}')" style="background:var(--accent); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;">Manage Tab</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    let currentSettlePatron = '';
+    function openSettleModal(name) {
+        currentSettlePatron = name;
+        document.getElementById('settle-patron-name').innerText = name;
+        document.getElementById('settle-patron-due').innerText = `₹${lendedCustomers[name].totalDue.toFixed(2)}`;
+        document.getElementById('settle-input-val').value = '';
+        openModal('settle-khata-modal');
+    }
+
+    function executeKhataAction(action) {
+        const cust = lendedCustomers[currentSettlePatron];
+        const amtInput = parseFloat(document.getElementById('settle-input-val').value);
+
+        if(action === 'full') {
+            const due = cust.totalDue;
+            metrics.lended -= due;
+            metrics.sales += due;
+            metrics.cash += due;
+            delete lendedCustomers[currentSettlePatron];
+
+            persistData();
+            closeModal('settle-khata-modal');
+            renderFullAccountsPage();
+            alert(`Fully settled tab for ${currentSettlePatron}. Collected ₹${due.toFixed(2)}.`);
+            return;
+        }
+
+        if(isNaN(amtInput) || amtInput <= 0) {
+            alert("Please enter a valid amount.");
+            return;
+        }
+
+        if(action === 'add') {
+            cust.totalDue += amtInput;
+            metrics.lended += amtInput;
+            metrics.sales += amtInput;
+            alert(`Manually added ₹${amtInput.toFixed(2)} to ${currentSettlePatron}'s Khata.`);
+        } else if(action === 'collect') {
+            if(amtInput > cust.totalDue) {
+                alert("Collection amount cannot exceed total outstanding due.");
+                return;
+            }
+            cust.totalDue -= amtInput;
+            metrics.lended -= amtInput;
+            metrics.sales += amtInput;
+            metrics.cash += amtInput;
+            if(cust.totalDue <= 0.01) delete lendedCustomers[currentSettlePatron];
+            alert(`Collected ₹${amtInput.toFixed(2)} from ${currentSettlePatron}.`);
+        } else if(action === 'minus') {
+            if(amtInput > cust.totalDue) {
+                alert("Reduction amount cannot exceed total outstanding due.");
+                return;
+            }
+            cust.totalDue -= amtInput;
+            metrics.lended -= amtInput;
+            if(cust.totalDue <= 0.01) delete lendedCustomers[currentSettlePatron];
+            alert(`Reduced ₹${amtInput.toFixed(2)} from ${currentSettlePatron}'s due balance.`);
+        }
+
+        persistData();
+        closeModal('settle-khata-modal');
+        renderFullAccountsPage();
+    }
+
+    function removeKhataTabCompletely() {
+        if(confirm(`Are you sure you want to completely remove ${currentSettlePatron}'s tab and write off the remaining due?`)) {
+            const due = lendedCustomers[currentSettlePatron].totalDue;
+            metrics.lended -= due;
+            delete lendedCustomers[currentSettlePatron];
+
+            persistData();
+            closeModal('settle-khata-modal');
+            renderFullAccountsPage();
+            alert(`Khata tab for ${currentSettlePatron} removed completely.`);
+        }
+    }
+
+    function submitManualLended() {
+        const name = document.getElementById('man-lended-name').value.trim();
+        const phone = document.getElementById('man-lended-phone').value.trim();
+        const amt = parseFloat(document.getElementById('man-lended-amt').value);
+        const desc = document.getElementById('man-lended-desc').value.trim() || 'Manual Khata Entry';
+        const timestamp = new Date().toLocaleString();
+
+        if(!name || !phone || isNaN(amt) || amt <= 0) {
+            alert("Please enter valid name, phone, and amount.");
+            return;
+        }
+
+        if(!lendedCustomers[name]) {
+            lendedCustomers[name] = { phone, totalDue: 0, orders: [] };
+        }
+        lendedCustomers[name].totalDue += amt;
+        lendedCustomers[name].orders.push({
+            timestamp,
+            table: 'Manual Entry',
+            items: [{ name: desc, price: amt, qty: 1 }],
+            total: amt
+        });
+
+        metrics.lended += amt;
+        metrics.sales += amt;
+
+        ordersHistory.unshift({
+            timestamp,
+            dateKey: getTodayKey(),
+            table: 'Manual Khata',
+            orderType: 'Credit',
+            itemsText: `${desc} (${name})`,
+            paymentStatus: `Lended (${name})`,
+            total: amt
+        });
+
+        persistData();
+        closeModal('manual-lended-modal');
+        renderFullAccountsPage();
+        alert(`Successfully added ₹${amt.toFixed(2)} to ${name}'s Khata tab.`);
+    }
+
+    function submitManualExpense() {
+        const desc = document.getElementById('man-exp-desc').value.trim();
+        const amt = parseFloat(document.getElementById('man-exp-amt').value);
+
+        if(!desc || isNaN(amt) || amt <= 0) {
+            alert("Please enter valid description and expense amount.");
+            return;
+        }
+
+        metrics.expenses += amt;
+        const today = getTodayKey();
+        recordDailyLedger();
+        dailyLedgerMap[today].expenses += amt;
+
+        persistData();
+        closeModal('manual-expense-modal');
+        renderFullAccountsPage();
+        alert(`Successfully recorded expense of ₹${amt.toFixed(2)}.`);
+    }
+
+    // --- Current Day Data Section Renderer ---
+    function renderTodayDataView() {
+        const todayKey = getTodayKey();
+        
+        let todayRev = 0;
+        let todayExp = 0;
+        let todayOrdersCount = 0;
+        let todayLeavesCount = 0;
+
+        if(dailyLedgerMap[todayKey]) {
+            todayRev = dailyLedgerMap[todayKey].revenue;
+            todayExp = dailyLedgerMap[todayKey].expenses;
+            todayOrdersCount = dailyLedgerMap[todayKey].orders;
+        } else {
+            todayRev = metrics.sales;
+            todayExp = metrics.expenses;
+            todayOrdersCount = metrics.orders;
+        }
+
+        staffList.forEach(st => {
+            if(st.transactions) {
+                st.transactions.forEach(tr => {
+                    if(tr.type === 'leave' && tr.dateStr === todayKey) todayLeavesCount++;
+                });
+            }
+        });
+
+        document.getElementById('today-rev').innerText = `₹${todayRev.toFixed(2)}`;
+        document.getElementById('today-exp').innerText = `₹${todayExp.toFixed(2)}`;
+        document.getElementById('today-orders').innerText = todayOrdersCount;
+        document.getElementById('today-leaves').innerText = todayLeavesCount;
+
+        const ordersTbody = document.getElementById('today-orders-tbody');
+        ordersTbody.innerHTML = '';
+        const todayOrders = ordersHistory.filter(o => o.dateKey === todayKey || o.timestamp.includes(todayKey));
+
+        if(todayOrders.length === 0) {
+            ordersTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-light);">No orders completed today yet.</td></tr>`;
+        } else {
+            todayOrders.forEach(ord => {
+                let row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><small style="color:var(--text-light);">${ord.timestamp}</small></td>
+                    <td><strong>${ord.table}</strong></td>
+                    <td>${ord.itemsText}</td>
+                    <td style="font-weight:700; color:var(--accent);">₹${ord.total.toFixed(2)}</td>
+                `;
+                ordersTbody.appendChild(row);
+            });
+        }
+
+        const staffTbody = document.getElementById('today-staff-tbody');
+        staffTbody.innerHTML = '';
+        let todayStaffTx = [];
+        staffList.forEach(st => {
+            if(st.transactions) {
+                st.transactions.forEach(tr => {
+                    if(tr.dateStr === todayKey) {
+                        todayStaffTx.push({ timestamp: tr.timestamp, name: st.name, type: tr.type, note: tr.note, amount: tr.amount });
+                    }
+                });
+            }
+        });
+
+        if(todayStaffTx.length === 0) {
+            staffTbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--text-light);">No staff records for today.</td></tr>`;
+        } else {
+            todayStaffTx.forEach(s => {
+                let row = document.createElement('tr');
+                let detail = s.type === 'leave' ? `<span style="color:var(--leave-color); font-weight:700;">LEAVE: ${s.note}</span>` : `<span style="color:var(--staff-color); font-weight:700;">Payout: -₹${s.amount.toFixed(2)} (${s.note})</span>`;
+                row.innerHTML = `
+                    <td><small style="color:var(--text-light);">${s.timestamp}</small></td>
+                    <td><strong>${s.name}</strong></td>
+                    <td>${s.type === 'leave' ? 'Staff Leave' : 'Staff Payout'}</td>
+                    <td>${detail}</td>
+                `;
+                staffTbody.appendChild(row);
+            });
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
